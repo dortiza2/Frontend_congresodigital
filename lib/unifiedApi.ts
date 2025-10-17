@@ -504,8 +504,7 @@ export async function getStaticPropsWithApi<T>(
         data: response.data,
         error: response.status === 'error',
         timestamp: response.timestamp
-      },
-      revalidate: options.revalidate || 60
+      }
     };
   } catch (error) {
     logError('getStaticPropsWithApi', error);
@@ -515,8 +514,7 @@ export async function getStaticPropsWithApi<T>(
         data: [] as unknown as T,
         error: true,
         timestamp: getTimestamp()
-      },
-      revalidate: 30
+      }
     };
   }
 }

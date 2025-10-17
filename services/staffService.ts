@@ -46,6 +46,10 @@ export interface StaffStats {
   totalActivities: number;
   todayAttendance: number;
   pendingTasks: number;
+  totalStaff?: number;
+  activeStaff?: number;
+  pendingInvitations?: number;
+  acceptedInvitations?: number;
 }
 
 export interface QRScanRequest {

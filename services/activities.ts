@@ -148,6 +148,90 @@ export async function fetchPublicActivities(): Promise<PublicActivity[]> {
   return [];
 }
 
+// Validación de actividades
+export class ActivityValidation {
+  static validateTitle(title: string): string | null {
+    if (!title || title.trim().length === 0) {
+      return 'El título es requerido';
+    }
+    if (title.length < 3) {
+      return 'El título debe tener al menos 3 caracteres';
+    }
+    if (title.length > 200) {
+      return 'El título no puede exceder 200 caracteres';
+    }
+    return null;
+  }
+
+  static validateDescription(description: string): string | null {
+    if (!description || description.trim().length === 0) {
+      return 'La descripción es requerida';
+    }
+    if (description.length < 10) {
+      return 'La descripción debe tener al menos 10 caracteres';
+    }
+    if (description.length > 1000) {
+      return 'La descripción no puede exceder 1000 caracteres';
+    }
+    return null;
+  }
+
+  static validateActivityType(activityType: string): string | null {
+    const validTypes = ['CHARLA', 'TALLER', 'COMPETENCIA'];
+    if (!validTypes.includes(activityType)) {
+      return 'El tipo de actividad debe ser CHARLA, TALLER o COMPETENCIA';
+    }
+    return null;
+  }
+
+  static validateLocation(location: string): string | null {
+    if (!location || location.trim().length === 0) {
+      return 'La ubicación es requerida';
+    }
+    if (location.length < 2) {
+      return 'La ubicación debe tener al menos 2 caracteres';
+    }
+    if (location.length > 100) {
+      return 'La ubicación no puede exceder 100 caracteres';
+    }
+    return null;
+  }
+
+  static validateCapacity(capacity: number): string | null {
+    if (!capacity || capacity <= 0) {
+      return 'La capacidad debe ser mayor a 0';
+    }
+    if (capacity > 1000) {
+      return 'La capacidad no puede exceder 1000 participantes';
+    }
+    return null;
+  }
+
+  static validateTimeRange(startTime: string, endTime: string): string | null {
+    if (!startTime || !endTime) {
+      return 'Los horarios de inicio y fin son requeridos';
+    }
+    
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    
+    if (start >= end) {
+      return 'La hora de fin debe ser posterior a la hora de inicio';
+    }
+    
+    const duration = (end.getTime() - start.getTime()) / (1000 * 60); // minutes
+    if (duration < 30) {
+      return 'La duración mínima es de 30 minutos';
+    }
+    
+    if (duration > 480) { // 8 hours
+      return 'La duración máxima es de 8 horas';
+    }
+    
+    return null;
+  }
+}
+
 export function filterActivitiesByKind(activities: PublicActivity[], kind: string | 'all'): PublicActivity[] {
   if (kind === 'all') return activities;
   return activities.filter(a => a.kind.toLowerCase() === kind.toLowerCase());
