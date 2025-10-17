@@ -70,9 +70,10 @@ export default function ActividadesPage() {
   }, []);
 
   const loadActivities = async () => {
-    const data = await getAll();
-    if (data && Array.isArray(data.items)) {
-      setActivities(data.items as unknown as Activity[]);
+    const res = await getAll();
+    const items = res?.data?.items;
+    if (items && Array.isArray(items)) {
+      setActivities(items as unknown as Activity[]);
     }
   };
 
@@ -354,7 +355,7 @@ export default function ActividadesPage() {
           {/* Mensajes de error */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <div className="text-red-800">{error.message}</div>
+              <div className="text-red-800">{typeof error === 'string' ? error : 'Ocurrió un error'}</div>
               <button
                 onClick={clearError}
                 className="mt-2 text-sm text-red-600 hover:text-red-800"
