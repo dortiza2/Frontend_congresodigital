@@ -1,0 +1,42 @@
+[
+  {
+    "id": "taller-ciberseguridad",
+    "title": "Taller de Ciberseguridad",
+    "imageUrl": "/assets/activities/cybersecurity.jpg",
+    "short": "Aprende técnicas avanzadas de protección digital y ethical hacking",
+    "description": "Taller práctico donde aprenderás las últimas técnicas de ciberseguridad, incluyendo análisis de vulnerabilidades, ethical hacking y estrategias de protección para sistemas empresariales.",
+    "link": "/inscripcion?actividad=taller-ciberseguridad"
+  },
+  {
+    "id": "taller-python",
+    "title": "Taller de Programación en Python",
+    "imageUrl": "/assets/activities/python.jpg",
+    "short": "Domina Python desde cero hasta proyectos avanzados de IA",
+    "description": "Taller intensivo de programación en Python, desde conceptos básicos hasta desarrollo de aplicaciones con inteligencia artificial y machine learning. Incluye proyectos prácticos.",
+    "link": "/inscripcion?actividad=taller-python"
+  },
+  {
+    "id": "hackathon-48h",
+    "title": "Hackathon 48h",
+    "imageUrl": "/assets/activities/hackathon.jpg",
+    "short": "Competencia de desarrollo de 48 horas con premios increíbles",
+    "description": "Únete a la competencia de desarrollo más emocionante del año. Durante 48 horas intensas, los equipos trabajarán para crear soluciones innovadoras a problemas reales. Premios increíbles esperan a los ganadores.",
+    "link": "/inscripcion?actividad=hackathon-48h"
+  },
+  {
+    "id": "startup-pitch",
+    "title": "Startup Pitch",
+    "imageUrl": "/assets/activities/startup-pitch.jpg",
+    "short": "Presenta tu startup ante inversores y expertos del ecosistema",
+    "description": "Oportunidad única para presentar tu startup ante un panel de inversores reconocidos y expertos del ecosistema emprendedor. Recibe feedback valioso y posibles oportunidades de inversión.",
+    "link": "/inscripcion?actividad=startup-pitch"
+  },
+  {
+    "id": "tech-talks",
+    "title": "Tech Talks",
+    "imageUrl": "/assets/activities/tech-talks.jpg",
+    "short": "Charlas técnicas de 15 minutos sobre las últimas tendencias",
+    "description": "Serie de charlas técnicas rápidas de 15 minutos cada una, donde expertos comparten las últimas tendencias en tecnología, desarrollo e innovación digital.",
+    "link": "/inscripcion?actividad=tech-talks"
+  }
+]

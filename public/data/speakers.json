@@ -1,0 +1,26 @@
+[
+  {
+    "id": "speaker-1",
+    "name": "Dr. Ana García",
+    "topic": "Inteligencia Artificial y Ética",
+    "bioShort": "Doctora en Ciencias de la Computación con 15 años de experiencia en IA y machine learning",
+    "photoUrl": "/assets/speakers/ana-garcia.jpg",
+    "priority": 1
+  },
+  {
+    "id": "speaker-2",
+    "name": "Carlos Mendoza",
+    "topic": "Blockchain y Criptomonedas",
+    "bioShort": "Experto en tecnología blockchain y fundador de tres startups fintech exitosas",
+    "photoUrl": "/assets/speakers/carlos-mendoza.jpg",
+    "priority": 2
+  },
+  {
+    "id": "speaker-3",
+    "name": "María López",
+    "topic": "Desarrollo Sostenible y Tech",
+    "bioShort": "Ingeniera ambiental especializada en soluciones tecnológicas para el cambio climático",
+    "photoUrl": "/assets/speakers/maria-lopez.jpg",
+    "priority": 3
+  }
+]

@@ -1,0 +1,69 @@
+<svg width="320" height="192" viewBox="0 0 320 192" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dataGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5B21B6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="320" height="192" fill="url(#dataGradient)"/>
+  
+  <!-- Chart background -->
+  <g transform="translate(40, 30)">
+    <rect x="0" y="0" width="240" height="120" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
+    
+    <!-- Grid lines -->
+    <g stroke="#E2E8F0" stroke-width="1">
+      <line x1="20" y1="20" x2="220" y2="20"/>
+      <line x1="20" y1="40" x2="220" y2="40"/>
+      <line x1="20" y1="60" x2="220" y2="60"/>
+      <line x1="20" y1="80" x2="220" y2="80"/>
+      <line x1="20" y1="100" x2="220" y2="100"/>
+      
+      <line x1="20" y1="20" x2="20" y2="100"/>
+      <line x1="70" y1="20" x2="70" y2="100"/>
+      <line x1="120" y1="20" x2="120" y2="100"/>
+      <line x1="170" y1="20" x2="170" y2="100"/>
+      <line x1="220" y1="20" x2="220" y2="100"/>
+    </g>
+    
+    <!-- Bar chart -->
+    <rect x="30" y="60" width="20" height="40" fill="#3B82F6"/>
+    <rect x="80" y="40" width="20" height="60" fill="#10B981"/>
+    <rect x="130" y="70" width="20" height="30" fill="#F59E0B"/>
+    <rect x="180" y="30" width="20" height="70" fill="#EF4444"/>
+    
+    <!-- Line chart -->
+    <polyline points="45,50 95,35 145,45 195,25" stroke="#8B5CF6" stroke-width="3" fill="none"/>
+    <circle cx="45" cy="50" r="3" fill="#8B5CF6"/>
+    <circle cx="95" cy="35" r="3" fill="#8B5CF6"/>
+    <circle cx="145" cy="45" r="3" fill="#8B5CF6"/>
+    <circle cx="195" cy="25" r="3" fill="#8B5CF6"/>
+  </g>
+  
+  <!-- Python logo -->
+  <g transform="translate(20, 160)">
+    <rect x="0" y="0" width="24" height="24" rx="4" fill="#3776AB"/>
+    <rect x="6" y="6" width="12" height="12" rx="2" fill="#FFD43B"/>
+    <text x="30" y="16" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Python</text>
+  </g>
+  
+  <!-- ML icon -->
+  <g transform="translate(120, 160)">
+    <circle cx="12" cy="12" r="8" fill="none" stroke="#10B981" stroke-width="2"/>
+    <circle cx="12" cy="12" r="4" fill="none" stroke="#10B981" stroke-width="2"/>
+    <circle cx="12" cy="12" r="2" fill="#10B981"/>
+    <text x="30" y="16" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">ML</text>
+  </g>
+  
+  <!-- AI icon -->
+  <g transform="translate(200, 160)">
+    <polygon points="12,4 20,12 12,20 4,12" fill="#F59E0B"/>
+    <circle cx="12" cy="12" r="3" fill="white"/>
+    <text x="30" y="16" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">AI</text>
+  </g>
+  
+  <!-- Title -->
+  <text x="160" y="185" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Data Science & Analytics</text>
+</svg>

@@ -1,0 +1,11 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f8fafc"/>
+  <rect x="50" y="50" width="300" height="200" rx="8" fill="#e2e8f0"/>
+  <circle cx="120" cy="120" r="20" fill="#cbd5e1"/>
+  <rect x="160" y="110" width="120" height="8" rx="4" fill="#cbd5e1"/>
+  <rect x="160" y="130" width="80" height="6" rx="3" fill="#e2e8f0"/>
+  <rect x="70" y="180" width="260" height="4" rx="2" fill="#e2e8f0"/>
+  <rect x="70" y="200" width="200" height="4" rx="2" fill="#e2e8f0"/>
+  <rect x="70" y="220" width="150" height="4" rx="2" fill="#e2e8f0"/>
+  <text x="200" y="270" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="12">Actividad</text>
+</svg>

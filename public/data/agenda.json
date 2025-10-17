@@ -1,0 +1,50 @@
+[
+  {
+    "id": "agenda-1",
+    "type": "actividad",
+    "title": "Registro y Bienvenida",
+    "startISO": "2024-03-15T08:00:00Z",
+    "endISO": "2024-03-15T09:00:00Z",
+    "place": "Hall Principal",
+    "day": "2024-03-15"
+  },
+  {
+    "id": "agenda-2",
+    "type": "charla",
+    "title": "Keynote: El Futuro de la IA",
+    "speakerId": "speaker-1",
+    "startISO": "2024-03-15T09:00:00Z",
+    "endISO": "2024-03-15T10:00:00Z",
+    "place": "Auditorio Principal",
+    "day": "2024-03-15"
+  },
+  {
+    "id": "agenda-3",
+    "type": "charla",
+    "title": "Workshop: Blockchain Práctico",
+    "speakerId": "speaker-2",
+    "startISO": "2024-03-15T10:30:00Z",
+    "endISO": "2024-03-15T12:00:00Z",
+    "place": "Sala de Workshops",
+    "day": "2024-03-15"
+  },
+  {
+    "id": "agenda-4",
+    "type": "actividad",
+    "title": "Almuerzo y Networking",
+    "startISO": "2024-03-15T12:00:00Z",
+    "endISO": "2024-03-15T13:30:00Z",
+    "place": "Terraza",
+    "day": "2024-03-15"
+  },
+  {
+    "id": "agenda-5",
+    "type": "charla",
+    "title": "Tech para un Mundo Sostenible",
+    "speakerId": "speaker-3",
+    "startISO": "2024-03-15T13:30:00Z",
+    "endISO": "2024-03-15T14:30:00Z",
+    "place": "Auditorio Principal",
+    "day": "2024-03-15"
+  }
+]

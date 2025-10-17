@@ -1,0 +1,254 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* Removed dark theme support - force light theme only */
+
+body {
+  background: linear-gradient(to bottom, #e0f2fe, #a7f3d0, #dbeafe);
+  color: #1f2937;
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+/* *=========== Default theme =========== */
+/* @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+} */
+
+/* *=========== Blue theme =========== */
+@layer base {
+  :root {
+    --background: 210 100% 96%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 96%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 96%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 215 20% 27%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 210 100% 40%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 70%;
+    --input: 0 0% 96%;
+    --ring: 210 100% 50%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 0 0% 95%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 95%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 210 100% 60%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 100% 70%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 210 100% 60%;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+html {
+  scroll-behavior: smooth;
+}
+
+/* HeroCards background shadow - Reduced intensity */
+.shadow {
+  position: absolute;
+  background: hsl(var(--primary) / 0%);
+  border-radius: 24px;
+  rotate: 35deg;
+  z-index: -1;
+  width: 200px;
+  top: 200px;
+  height: 300px;
+  filter: blur(180px);
+  will-change: transform;
+  animation: shadow-slide infinite 6s ease-in-out alternate;
+}
+
+@keyframes shadow-slide {
+  from {
+    background: hsl(var(--primary) / 0.08);
+    right: 460px;
+  }
+  to {
+    background: hsl(var(--primary) / 0.15);
+    right: 160px;
+  }
+}
+
+/* Dark theme shadow effect */
+.dark .shadow {
+  filter: blur(200px);
+  animation: shadow-slide-dark infinite 6s ease-in-out alternate;
+}
+
+@keyframes shadow-slide-dark {
+  from {
+    background: hsl(var(--primary) / 0.05);
+    right: 460px;
+  }
+  to {
+    background: hsl(var(--primary) / 0.12);
+    right: 160px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .shadow {
+    top: 70px;
+  }
+
+  @keyframes shadow-slide {
+    from {
+      background: hsl(var(--primary) / 0.06);
+      right: 460px;
+    }
+    to {
+      background: hsl(var(--primary) / 0.12);
+      right: 160px;
+    }
+  }
+
+  @keyframes shadow-slide-dark {
+    from {
+      background: hsl(var(--primary) / 0.04);
+      right: 460px;
+    }
+    to {
+      background: hsl(var(--primary) / 0.08);
+      right: 160px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .shadow {
+    top: 70px;
+    width: 80px;
+    height: 250px;
+    filter: blur(100px);
+  }
+
+  @keyframes shadow-slide {
+    from {
+      background: hsl(var(--primary) / 0.04);
+      right: 280px;
+    }
+    to {
+      background: hsl(var(--primary) / 0.08);
+      right: 100px;
+    }
+  }
+}
+
+/* Contenedor centrado consistente */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .page-container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container {
+    padding: 0 2rem;
+  }
+}

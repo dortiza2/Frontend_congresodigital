@@ -1,0 +1,22 @@
+{
+  "heading": "Carrera de Ingeniería en Sistemas — UMG",
+  "body": "La Universidad Mariano Gálvez ofrece una carrera de Ingeniería en Sistemas de vanguardia, diseñada para formar profesionales capaces de enfrentar los desafíos tecnológicos del siglo XXI. Nuestro programa combina fundamentos sólidos en programación, bases de datos, redes y desarrollo de software con las últimas tendencias en inteligencia artificial, ciberseguridad y computación en la nube.",
+  "links": [
+    {
+      "label": "Sitio Oficial UMG",
+      "url": "https://www.umg.edu.gt"
+    },
+    {
+      "label": "Facultad de Ingeniería",
+      "url": "https://www.umg.edu.gt/facultades/ingenieria"
+    },
+    {
+      "label": "Plan de Estudios",
+      "url": "https://www.umg.edu.gt/carreras/ingenieria-sistemas"
+    },
+    {
+      "label": "Proceso de Admisión",
+      "url": "https://www.umg.edu.gt/admisiones"
+    }
+  ]
+}

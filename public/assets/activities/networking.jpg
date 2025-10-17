@@ -1,0 +1,17 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#f3f4f6"/>
+  <rect x="30" y="30" width="340" height="240" fill="#e5e7eb" stroke="#d1d5db" stroke-width="2" rx="8"/>
+  <circle cx="120" cy="100" r="25" fill="#9ca3af"/>
+  <circle cx="200" cy="100" r="25" fill="#9ca3af"/>
+  <circle cx="280" cy="100" r="25" fill="#9ca3af"/>
+  <circle cx="160" cy="160" r="25" fill="#9ca3af"/>
+  <circle cx="240" cy="160" r="25" fill="#9ca3af"/>
+  <line x1="145" y1="110" x2="175" y2="110" stroke="#6366f1" stroke-width="3"/>
+  <line x1="225" y1="110" x2="255" y2="110" stroke="#6366f1" stroke-width="3"/>
+  <line x1="135" y1="125" x2="145" y2="145" stroke="#8b5cf6" stroke-width="3"/>
+  <line x1="185" y1="125" x2="175" y2="145" stroke="#8b5cf6" stroke-width="3"/>
+  <line x1="215" y1="125" x2="225" y2="145" stroke="#06b6d4" stroke-width="3"/>
+  <line x1="265" y1="125" x2="255" y2="145" stroke="#06b6d4" stroke-width="3"/>
+  <text x="200" y="220" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Networking</text>
+  <text x="200" y="240" text-anchor="middle" fill="#9ca3af" font-family="Arial, sans-serif" font-size="12">Sesión de networking</text>
+</svg>
