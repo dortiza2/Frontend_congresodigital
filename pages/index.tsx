@@ -1,22 +1,25 @@
 import { GetStaticProps } from 'next';
+import dynamic from 'next/dynamic';
 // Limpieza de imports no usados realizada
-import { FAQ } from "../components/FAQ";
-import { Agenda } from "../components/Agenda";
-import { Footer } from "../components/Footer";
-import { Congress } from "../components/Congress";
-import { Speakers } from "../components/Speakers";
 import Navbar from "../components/Navbar";
-import { Newsletter } from "../components/Newsletter";
-import { Winners } from "../components/Winners";
 import { ScrollToTop } from "../components/ScrollToTop";
-import { Activities } from "../components/Activities";
-import { UMGSection } from "../components/UMGSection";
 import { getFaq, FaqItem } from '@/services/faq';
 // Se elimina ApiStandardResponse por no usarse
 import { getActivities, getSpeakers, PublicActivityDTO, PublicSpeakerDTO } from '@/lib/api';
 import { handleDataLoadError, createErrorBanner, createNoDataBanner, logSsrError } from '@/lib/errorHandler';
 import { adaptActivity, type PublicActivity, type RawActivityData } from '@/lib/adapters/activity';
 import type { PublicSpeaker as SpeakerType } from '@/services/speakers';
+
+// Carga diferida de secciones por debajo del fold (manteniendo SSR para SEO)
+const Congress = dynamic(() => import('../components/Congress').then(m => m.Congress));
+const Speakers = dynamic(() => import('../components/Speakers').then(m => m.Speakers));
+const Agenda = dynamic(() => import('../components/Agenda').then(m => m.Agenda));
+const Activities = dynamic(() => import('../components/Activities').then(m => m.Activities));
+const Winners = dynamic(() => import('../components/Winners').then(m => m.Winners));
+const Newsletter = dynamic(() => import('../components/Newsletter').then(m => m.Newsletter));
+const UMGSection = dynamic(() => import('../components/UMGSection').then(m => m.UMGSection));
+const FAQ = dynamic(() => import('../components/FAQ').then(m => m.FAQ));
+const Footer = dynamic(() => import('../components/Footer').then(m => m.Footer));
 
 type Props = {
   activities: PublicActivityDTO[];
