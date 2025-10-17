@@ -14,6 +14,23 @@ import { getPodiumByYear } from '@/services/podium';
 import { safeGet, apiClient } from '@/lib/api';
 import { API_ENDPOINTS } from '@/lib/apiConfig';
 
+// Helpers y type guards locales
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null;
+}
+function isNumberArrayLike(v: unknown): v is Array<unknown> {
+  return Array.isArray(v);
+}
+function coerceNumberArray(arr: unknown): number[] {
+  if (!Array.isArray(arr)) return [];
+  const out: number[] = [];
+  for (const el of arr) {
+    const n = Number(el);
+    if (!Number.isNaN(n)) out.push(n);
+  }
+  return out;
+}
+
 // Re-exportar tipos para compatibilidad
 export type {
   CongressInfo,
@@ -41,12 +58,12 @@ export async function getCongressInfo(): Promise<CongressInfo> {
 export async function getSpeakers(): Promise<Speaker[]> {
   try {
     const apiSpeakers = await getSpeakersFromAPI();
-    return apiSpeakers.map(speaker => ({
-      id: speaker.id,
-      name: speaker.name,
-      topic: speaker.roleTitle || 'Speaker',
-      bioShort: speaker.bio?.substring(0, 150) || '',
-      photoUrl: speaker.avatarUrl || '/uploads/speakers/perfil1.jpg',
+    return apiSpeakers.map(s => ({
+      id: String(s.id),
+      name: s.name,
+      topic: s.roleTitle || 'Speaker',
+      bioShort: s.bio?.substring(0, 150) || '',
+      photoUrl: s.avatarUrl || '/uploads/speakers/perfil1.jpg',
       priority: 1
     })).sort((a, b) => a.priority - b.priority);
   } catch (error) {
@@ -58,16 +75,22 @@ export async function getSpeakers(): Promise<Speaker[]> {
 export async function getAgenda(day?: string): Promise<AgendaItem[]> {
   const { success, data } = await safeGet<any[]>(API_ENDPOINTS.ACTIVITIES.PUBLIC_LIST);
   if (!success || !Array.isArray(data)) return [];
-  const agenda: AgendaItem[] = data.map((item: any) => ({
-    id: String(item.id ?? item.activityId ?? ''),
-    type: 'actividad',
-    title: item.title ?? 'Sin título',
-    speakerId: item.speakerId ?? undefined,
-    startISO: item.startTime ?? item.startISO ?? new Date().toISOString(),
-    endISO: item.endTime ?? item.endISO ?? new Date().toISOString(),
-    place: item.location ?? item.place ?? undefined,
-    day: (item.startTime ?? item.startISO ?? new Date().toISOString()).split('T')[0]
-  }));
+  const agenda: AgendaItem[] = data.map((item: any) => {
+    const start = item.startTime ?? item.startISO ?? new Date().toISOString();
+    const end = item.endTime ?? item.endISO ?? new Date().toISOString();
+    const typeUpper: string | undefined = item.activityType ?? item.type;
+    const type: 'actividad' | 'charla' = typeUpper === 'CHARLA' ? 'charla' : 'actividad';
+    return {
+      id: String(item.id ?? item.activityId ?? ''),
+      type,
+      title: String(item.title ?? 'Sin título'),
+      speakerId: item.speakerId ? String(item.speakerId) : undefined,
+      startISO: String(start),
+      endISO: String(end),
+      place: item.location ? String(item.location) : undefined,
+      day: String(start).split('T')[0]
+    };
+  });
   const filtered = day ? agenda.filter((i) => i.day === day) : agenda;
   return filtered.sort((a, b) => new Date(a.startISO).getTime() - new Date(b.startISO).getTime());
 }
@@ -76,7 +99,7 @@ export async function getActivities(): Promise<ActivityCard[]> {
   try {
     const activities = await getActivitiesFromService();
     return activities.map(a => ({
-      id: a.id,
+      id: String(a.id),
       title: a.title,
       imageUrl: '/assets/placeholder.jpg',
       short: a.description ? a.description.slice(0, 120) : '',
@@ -94,9 +117,9 @@ export async function getWinners(year: number): Promise<Winner[]> {
     const podium = await getPodiumByYear(year);
     return podium.map(w => ({
       id: `${w.year}-${w.activityId}-${w.place}`,
-      year: w.year,
-      activityId: w.activityId,
-      place: (w.place as 1 | 2 | 3) ?? 1,
+      year: Number(w.year),
+      activityId: String(w.activityId ?? ''),
+      place: (Number(w.place) as 1 | 2 | 3) ?? 1,
       projectName: w.winnerName,
       projectShort: w.prizeDescription,
       photoUrl: '/assets/podium/default.jpg',
@@ -116,13 +139,11 @@ export async function getEditions(): Promise<{
 }> {
   const currentYear = new Date().getFullYear();
   try {
-    // Si existe endpoint real, usarlo; de lo contrario mantener estructura mínima
     const res = await apiClient.get('/api/editions');
-    if (res && typeof res === 'object') {
-      const obj = res as Record<string, unknown>;
-      const current = typeof obj.currentYear === 'number' ? obj.currentYear : currentYear;
-      const years = Array.isArray(obj.availableYears) ? (obj.availableYears as unknown[]).map(y => Number(y)) : [currentYear];
-      const edition = (obj.hasEdition && typeof obj.hasEdition === 'object') ? (obj.hasEdition as Record<string, boolean>) : { [String(currentYear)]: true };
+    if (isRecord(res)) {
+      const current = typeof res.currentYear === 'number' ? res.currentYear : currentYear;
+      const years = isNumberArrayLike(res.availableYears) ? coerceNumberArray(res.availableYears) : [currentYear];
+      const edition = (isRecord(res.hasEdition)) ? (res.hasEdition as Record<string, boolean>) : { [String(currentYear)]: true };
       return {
         currentYear: Number(current),
         availableYears: years,
@@ -142,9 +163,15 @@ export async function getEditions(): Promise<{
 export async function getCareerInfo(): Promise<CareerInfo> {
   // Si existe endpoint real, usarlo; caso contrario retornar vacío controlado
   try {
-    const { success, data } = await safeGet<any[]>('/api/career');
-    if (success && data) {
-      return data as unknown as CareerInfo;
+    const res = await apiClient.get('/api/career');
+    if (isRecord(res)) {
+      const heading = typeof res.heading === 'string' ? res.heading : 'Carrera de Ingeniería en Sistemas — UMG';
+      const body = typeof res.body === 'string' ? res.body : '';
+      const links = Array.isArray(res.links) ? res.links.filter(isRecord).map(l => ({
+        label: typeof l.label === 'string' ? l.label : '',
+        url: typeof l.url === 'string' ? l.url : '#'
+      })) : [];
+      return { heading, body, links };
     }
   } catch (error) {
     // log controlado

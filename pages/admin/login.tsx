@@ -66,30 +66,32 @@ export default function AdminLogin() {
   // Mostrar loading si está verificando autenticación
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="relative min-h-screen flex items-center justify-center bg-congreso">
+        <div className="overlay-soft pointer-events-none" />
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 relative z-10"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
-      <div className="max-w-md w-full space-y-8">
+    <div className="relative min-h-screen bg-congreso flex items-center justify-center px-4">
+      <div className="overlay-soft pointer-events-none" />
+      <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header */}
         <div className="text-center">
           <div className="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900/90 tracking-tight">
             Acceso al Dashboard
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-slate-700/90">
             Ingresa con tu cuenta de staff para acceder al panel de administración
           </p>
         </div>
 
         {/* Formulario */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="rounded-2xl border border-black/10 bg-white/70 backdrop-blur-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
@@ -152,7 +154,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className="w-full flex justify-center px-4 py-3 rounded-xl text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               {isLoading ? (
                 <div className="flex items-center">

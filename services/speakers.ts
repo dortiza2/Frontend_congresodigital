@@ -55,7 +55,7 @@ export class SpeakerService {
 
   // Obtener speakers públicos desde API real
   static async getPublicSpeakers(): Promise<PublicSpeaker[]> {
-    const res = await safeGet<any>(API_ENDPOINTS.SPEAKERS.PUBLIC_LIST);
+    const res = await safeGet<any[]>(API_ENDPOINTS.SPEAKERS.PUBLIC_LIST);
     if (res.success && Array.isArray(res.data)) {
       return res.data.map((s: any) => {
         let links: Record<string, any> | string | undefined = s.links;

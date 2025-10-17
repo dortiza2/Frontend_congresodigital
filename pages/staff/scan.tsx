@@ -92,7 +92,7 @@ function QRScannerContent() {
     setIsProcessing(false);
   };
 
-  // Simular escaneo de QR (en una implementación real usarías una librería como jsQR)
+  // Capturar frame y tratar de decodificar QR (placeholder sin mock)
   const captureAndScan = async () => {
     if (!videoRef.current || !canvasRef.current || isProcessing) return;
 
@@ -106,16 +106,9 @@ function QRScannerContent() {
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0);
 
-      // Simular procesamiento de QR
-      // En una implementación real, aquí usarías jsQR o similar para extraer el token
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Por ahora, simular la extracción de un token del QR
-      // En producción, esto vendría de la librería de QR
-      const mockToken = `token_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
-      
-      // Procesar el token extraído
-      await processCheckIn(mockToken);
+      // TODO: Integrar librería de lectura de QR (ej. jsQR) y extraer token real
+      // Por ahora, no generamos tokens simulados; requerimos ingreso manual hasta integrar lector
+      setError('Lector de QR no configurado. Usa token manual temporalmente.');
     }
 
     setIsProcessing(false);

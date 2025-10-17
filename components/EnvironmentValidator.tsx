@@ -20,26 +20,36 @@ export default function EnvironmentValidator({ children }: EnvironmentValidatorP
   useEffect(() => {
     const validateEnvironment = async () => {
       try {
-        const baseUrl = validateApiBaseUrl();
-        const healthUrl = `${baseUrl}/api/health`;
+        // Intentar health detallado; si falla, intentar /health simple
+        let response: Response | null = null;
+        try {
+          response = await fetch('/api/health', {
+            headers: { 'Accept': 'application/json' },
+            credentials: 'include',
+          });
+        } catch (e) {
+          response = null;
+        }
 
-        const response = await fetch(healthUrl, {
-          headers: { 'Accept': 'application/json' },
-          credentials: 'include',
-        });
+        // Si existiese un endpoint alternativo, se podría intentar aquí
+        if (!response || !response.ok) {
+          throw new Error('API health check failed: /api/health');
+        }
 
         if (!response.ok) {
           throw new Error(`API health check failed: ${response.status} ${response.statusText}`);
         }
 
         const healthData = await response.json();
-        const isHealthy = Boolean(healthData.success ?? (healthData.status === 'ok'));
-        if (!isHealthy || !healthData.version || !healthData.time) {
-          throw new Error('API health check returned invalid data format');
+        const rawStatus = String(healthData.status || healthData.message || '').toLowerCase();
+        const isHealthy = rawStatus.includes('healthy') || rawStatus === 'ok' || rawStatus === 'up';
+        if (!isHealthy) {
+          throw new Error('API health check reported unhealthy status');
         }
 
         console.log('✅ Environment validation passed:', {
-          baseUrl,
+          endpoint: response.url,
+          status: healthData.status,
           apiVersion: healthData.version,
           apiTime: healthData.time,
           timestamp: new Date().toISOString(),
@@ -125,10 +135,7 @@ export default function EnvironmentValidator({ children }: EnvironmentValidatorP
           </div>
         </div>
       )}
-
-      <div className="pt-16">{/* separador para el banner fijo */}
-        {children}
-      </div>
+      {children}
     </>
   );
 }

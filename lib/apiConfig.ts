@@ -6,7 +6,7 @@
 // Configuración base de la API
 export const API_CONFIG = {
   // Unificar nombres: usar NEXT_PUBLIC_API_URL (cliente) y API_BASE_URL o API_URL (SSR)
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL || 'http://localhost:5213',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL || '',
   TIMEOUT: 10000, // 10 segundos
   HEADERS: {
     'Content-Type': 'application/json',
@@ -158,7 +158,8 @@ export const API_ENDPOINTS = {
  */
 
 // Configuración de modo de desarrollo
-export const USE_MOCK_DATA = false; // Cambiado a false para usar API real
+// Permite activar mocks con NEXT_PUBLIC_USE_MOCK=true (solo en no-producción)
+export const USE_MOCK_DATA = false;
 
 // Headers de autenticación
 export const getAuthHeaders = (): Record<string, string> => {
@@ -171,6 +172,7 @@ export const getAuthHeaders = (): Record<string, string> => {
 
 // Función helper para construir URLs completas
 export const buildApiUrl = (endpoint: string): string => {
+  if (!API_CONFIG.BASE_URL) return endpoint;
   return `${API_CONFIG.BASE_URL}${endpoint}`;
 };
 

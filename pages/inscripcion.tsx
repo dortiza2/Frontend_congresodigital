@@ -708,15 +708,16 @@ export default function InscripcionPage() {
 
   // Renderizar página de login
   const renderLogin = () => (
-    <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="relative min-h-screen bg-congreso flex items-center justify-center p-4">
+      <div className="overlay-soft pointer-events-none" />
+      <div className="w-full max-w-md relative z-10">
         {/* Header con logo */}
         <div className="text-center mb-8">
           <Logo href="/" className="justify-center text-2xl mb-4" size="lg" />
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-900/90 tracking-tight mb-2">
             {activeTab === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
           </h1>
-          <p className="text-slate-600">
+          <p className="text-slate-700/90">
             {activeTab === 'login' 
               ? 'Accede con tu cuenta para inscribirte en las actividades del congreso'
               : 'Regístrate para participar en las actividades del congreso'
@@ -725,7 +726,7 @@ export default function InscripcionPage() {
         </div>
 
         {/* Pestañas */}
-        <div className="bg-white rounded-lg shadow-sm border border-neutral-300 overflow-hidden">
+        <div className="rounded-2xl border border-black/10 bg-white/70 backdrop-blur-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] overflow-hidden">
           <div className="flex">
             <button
               onClick={() => setActiveTab('login')}
@@ -818,7 +819,7 @@ export default function InscripcionPage() {
                   <button
                     type="submit"
                     disabled={loggingIn || loggingInGoogle}
-                    className="w-full bg-slate-900 text-white py-2 px-4 rounded-md hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loggingIn ? 'Iniciando sesión...' : 'Iniciar Sesión'}
                   </button>
@@ -952,7 +953,7 @@ export default function InscripcionPage() {
                   <button
                     type="submit"
                     disabled={registering || loggingInGoogle}
-                    className="w-full bg-slate-900 text-white py-2 px-4 rounded-md hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {registering ? 'Registrando...' : 'Crear Cuenta'}
                   </button>
@@ -968,7 +969,7 @@ export default function InscripcionPage() {
                     <div className="w-full border-t border-neutral-300" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-slate-500">O continúa con</span>
+                    <span className="px-2 bg-white/70 text-slate-500">O continúa con</span>
                   </div>
                 </div>
 
@@ -1005,7 +1006,7 @@ export default function InscripcionPage() {
                     <div className="w-full border-t border-neutral-300" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-slate-500">O continúa con</span>
+                    <span className="px-2 bg-white/70 text-slate-500">O continúa con</span>
                   </div>
                 </div>
                 <div className="mt-4">
@@ -1690,10 +1691,11 @@ export default function InscripcionPage() {
   // Mostrar loading mientras se verifica la autenticación
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
-        <div className="text-center">
+      <div className="relative min-h-screen bg-congreso flex items-center justify-center">
+        <div className="overlay-soft pointer-events-none" />
+        <div className="text-center relative z-10">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mb-4"></div>
-          <p className="text-slate-600">Verificando autenticación...</p>
+          <p className="text-slate-700/90">Verificando autenticación...</p>
         </div>
       </div>
     );
@@ -1766,7 +1768,7 @@ export const getServerSideProps = async (ctx: any) => {
   const cookie = ctx.req.headers.cookie ?? "";
   // Usar nombres de variables consistentes con lib/api.ts
   // API_BASE_URL (SSR) o NEXT_PUBLIC_API_URL (cliente). Fallback seguro en dev.
-  const baseRoot = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://127.0.0.1:5213';
+  const baseRoot = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'https://congreso-api.onrender.com';
   const base = baseRoot.replace(/\/$/, '');
 
   const me = await fetch(base + "/api/auth/session", { headers: { cookie }, credentials: "include" });

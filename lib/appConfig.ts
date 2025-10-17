@@ -15,7 +15,7 @@ export const devLog = (...args: any[]) => {
 export const APP_CONFIG = {
   // URLs y endpoints
   API: {
-    BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5213',
+    BASE_URL: process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL || 'https://congreso-api.onrender.com',
     TIMEOUT: 30000, // 30 segundos
   },
   

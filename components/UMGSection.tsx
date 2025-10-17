@@ -90,6 +90,7 @@ export const UMGSection = () => {
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover"
                     priority={index === 0}
+                    unoptimized
                   />
                 </div>
               ))}
@@ -99,19 +100,21 @@ export const UMGSection = () => {
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-neutral-100/80 hover:bg-neutral-100/90 backdrop-blur-sm"
+              aria-label="Imagen anterior"
+              className="group absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/80 text-slate-700 border border-black/10 shadow-lg hover:bg-white hover:shadow-xl transition-all backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-emerald-500"
               onClick={prevSlide}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
             </Button>
 
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-neutral-100/80 hover:bg-neutral-100/90 backdrop-blur-sm"
+              aria-label="Imagen siguiente"
+              className="group absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/80 text-slate-700 border border-black/10 shadow-lg hover:bg-white hover:shadow-xl transition-all backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-emerald-500"
               onClick={nextSlide}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
             </Button>
 
             {/* Indicadores de puntos */}
@@ -121,8 +124,8 @@ export const UMGSection = () => {
                   key={index}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     index === currentSlide 
-                      ? 'bg-neutral-100 scale-110'
-                  : 'bg-neutral-100/50 hover:bg-neutral-100/70'
+                      ? 'bg-white shadow-sm scale-110'
+                  : 'bg-white/70 hover:bg-white'
                   }`}
                   onClick={() => goToSlide(index)}
                   aria-label={`Ir a imagen ${index + 1}`}
@@ -137,5 +140,3 @@ export const UMGSection = () => {
     </section>
   );
 };
-
-// TODO(API): Conectar con CMS para gestionar contenido e imágenes del carrusel

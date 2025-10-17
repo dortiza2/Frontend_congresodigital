@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Proxy simple a actividades públicas para construir agenda
 // Usa NEXT_PUBLIC_API_URL para el backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL || 'http://localhost:5213';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL || 'https://congreso-api.onrender.com';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {

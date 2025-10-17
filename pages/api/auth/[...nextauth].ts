@@ -43,7 +43,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5213';
+          const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL || 'https://congreso-api.onrender.com';
           const response = await fetch(`${backendUrl}/api/auth/login`, {
             method: 'POST',
             headers: {
@@ -92,7 +92,7 @@ export const authOptions: NextAuthOptions = {
 
         // Integrar con nuestro backend para crear/actualizar usuario
         try {
-          const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5213';
+          const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL || 'https://congreso-api.onrender.com';
           const response = await fetch(`${backendUrl}/api/auth/google`, {
             method: 'POST',
             headers: {

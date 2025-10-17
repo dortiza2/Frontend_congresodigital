@@ -527,7 +527,7 @@ export default function MiCuenta() {
 export const getServerSideProps = async (ctx: any) => {
   const cookie = ctx.req.headers.cookie ?? "";
   // Variables de entorno unificadas para SSR/cliente
-  const baseRoot = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5213';
+  const baseRoot = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || 'https://congreso-api.onrender.com';
   const base = baseRoot.replace(/\/$/, '');
 
   const me = await fetch(base + "/api/auth/session", { headers: { cookie }, credentials: "include" });

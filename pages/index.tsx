@@ -43,30 +43,33 @@ function App({ activities, faq, speakers, hasError, errorMessage }: Props) {
     : [];
 
   return (
-    <>
+    <main className="relative bg-congreso">
+      <div className="overlay-soft pointer-events-none" />
       <Navbar />
-      <Congress />
-      <div className="page-container">
-        {hasError && errorMessage && createErrorBanner(new Error(errorMessage), 'home')}
-        <Speakers speakers={speakersUi} />
-        <Agenda />
-        {activitiesUi && activitiesUi.length > 0 ? (
-          <Activities activities={activitiesUi} />
-        ) : (
-          createNoDataBanner('No hay actividades disponibles en este momento.')
-        )}
-        <Winners />
-        <Newsletter />
-        <UMGSection />
-        {faq && faq.length > 0 ? (
-          <FAQ faq={faq} />
-        ) : (
-          createNoDataBanner('No hay preguntas frecuentes disponibles.')
-        )}
+      <div className="relative z-10">
+        <Congress />
+        <div className="page-container">
+          {hasError && errorMessage && createErrorBanner(new Error(errorMessage), 'home')}
+          <Speakers speakers={speakersUi} />
+          <Agenda />
+          {activitiesUi && activitiesUi.length > 0 ? (
+            <Activities activities={activitiesUi} />
+          ) : (
+            createNoDataBanner('No hay actividades disponibles en este momento.')
+          )}
+          <Winners />
+          <Newsletter />
+          <UMGSection />
+          {faq && faq.length > 0 ? (
+            <FAQ faq={faq} />
+          ) : (
+            createNoDataBanner('No hay preguntas frecuentes disponibles.')
+          )}
+        </div>
+        <Footer />
+        <ScrollToTop />
       </div>
-      <Footer />
-      <ScrollToTop />
-    </>
+    </main>
   );
 }
 

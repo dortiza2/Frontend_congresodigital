@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getDashboardButtonText, getDashboardButtonRoute, type UserProfile } from "@/lib/roleUtils";
 import type { User as AuthUser } from "@/types/auth";
 
+
 const CTA = {
   podiumPath: "/podio", // Ruta del Podio del Congreso (NO usar #)
   loginPath: "/inscripcion",   // Página de registro/inscripción del congreso
@@ -115,40 +116,40 @@ function MobileNav() {
     <div className="lg:hidden">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="border-neutral-300">
+          <Button variant="outline" size="icon" className="border-neutral-300 hover:bg-neutral-100">
             <Menu className="h-5 w-5" />
             <span className="sr-only">Abrir menú</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-[88vw] sm:w-[380px] bg-neutral-100 text-slate-900">
+        <SheetContent side="right" className="w-[88vw] sm:w-[380px]">
           <nav className="mt-8 grid gap-3 text-base">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={close}
-                className="rounded-md px-2 py-2 hover:bg-neutral-200"
+                className="rounded-md px-2 py-2 hover:bg-neutral-50"
               >
                 {link.label}
               </Link>
             ))}
-            <div className="my-3 h-px bg-neutral-300" />
+            <div className="my-3 h-px bg-neutral-200" />
             <Link
               href={CTA.podiumPath}
               onClick={close}
-              className="rounded-md px-2 py-2 hover:bg-neutral-200"
+              className="rounded-md px-2 py-2 hover:bg-neutral-50"
             >
               Podio del Congreso
             </Link>
             {user ? (
               <>
-                <div className="px-2 py-2 text-slate-600">
+                <div className="px-2 py-2 text-neutral-600">
                   Hola, <b>{firstName}</b>
                 </div>
                 {shouldShowAccount() && (
                   <button
                     onClick={handleMobileAccount}
-                    className="rounded-md px-2 py-2 hover:bg-neutral-200 text-left w-full cursor-pointer flex items-center space-x-2"
+                    className="rounded-md px-2 py-2 hover:bg-neutral-50 text-left w-full cursor-pointer flex items-center space-x-2"
                   >
                     <User className="h-4 w-4" />
                     <span>Mi Cuenta</span>
@@ -157,7 +158,7 @@ function MobileNav() {
                 {shouldShowDashboard() && (
                   <button
                     onClick={() => { close(); handleDashboard(); }}
-                    className="rounded-md px-2 py-2 hover:bg-neutral-200 text-left w-full cursor-pointer"
+                    className="rounded-md px-2 py-2 hover:bg-neutral-50 text-left w-full cursor-pointer"
                   >
                     {getDashboardText()}
                   </button>
@@ -170,15 +171,15 @@ function MobileNav() {
                   <span>Cerrar sesión</span>
                 </button>
                 {user && (
-                    <div className="px-2 py-1 text-xs text-gray-500">
-                      {user.email}
-                    </div>
-                  )}
+                  <div className="px-2 py-1 text-xs text-neutral-500">
+                    {user.email}
+                  </div>
+                )}
               </>
             ) : (
               <button
                 onClick={handleMobileInscripcionClick}
-                className="rounded-md px-2 py-2 hover:bg-neutral-200 text-left w-full cursor-pointer"
+                className="rounded-md px-2 py-2 hover:bg-neutral-50 text-left w-full cursor-pointer"
               >
                 Login / Register
               </button>
@@ -261,14 +262,14 @@ export default function Navbar() {
             {/* Logo */}
             <Link
               href="/"
-              className="flex min-w-0 items-center gap-2 text-slate-900 font-semibold"
+              className="flex min-w-0 items-center gap-2 font-semibold"
             >
-              <Cpu className="h-5 w-5 shrink-0" />
+              <Cpu className="h-5 w-5" />
               <span className="truncate">Congreso Digital</span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-6 text-sm text-slate-900">
+            <nav className="hidden lg:flex items-center gap-6 text-sm">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -286,17 +287,17 @@ export default function Navbar() {
               <div className="hidden lg:flex items-center gap-3">
                 <Link
                   href={CTA.podiumPath}
-                  className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-200"
+                  className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50"
                 >
                   Podio
                 </Link>
                 {user ? (
                   <div className="flex items-center gap-3">
-                    <span className="text-slate-600">Hola, <b>{firstName}</b></span>
+                    <span>Hola, <b>{firstName}</b></span>
                     {shouldShowAccount() && (
                       <button
                         onClick={handleAccount}
-                        className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-200 cursor-pointer space-x-1"
+                        className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50 cursor-pointer space-x-1"
                       >
                         <User className="h-4 w-4" />
                         <span>Mi Cuenta</span>
@@ -305,7 +306,7 @@ export default function Navbar() {
                     {shouldShowDashboard() && (
                       <button
                         onClick={handleDashboard}
-                        className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-200 cursor-pointer"
+                        className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50 cursor-pointer"
                       >
                         <span>{getDashboardText()}</span>
                       </button>
@@ -321,7 +322,7 @@ export default function Navbar() {
                 ) : (
                   <button
                     onClick={handleInscripcionClick}
-                    className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-200 cursor-pointer"
+                    className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50 cursor-pointer"
                   >
                     Login / Register
                   </button>

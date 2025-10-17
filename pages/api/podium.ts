@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5213';
+import { apiClient } from '@/lib/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -9,24 +8,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const { year } = req.query;
-    
-    // Build query parameters
+
     const params = new URLSearchParams();
-    if (year) params.append('year', year as string);
-    
-    const queryString = params.toString();
-    const url = `${API_BASE_URL}/api/podium${queryString ? `?${queryString}` : ''}`;
-    
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
+    if (year && typeof year === 'string') params.append('year', year);
+
+    const path = `/api/podium${params.toString() ? `?${params.toString()}` : ''}`;
+
+    try {
+      const data = await apiClient.get(path);
+      // Asegurar array como respuesta pública
+      return res.status(200).json(Array.isArray(data) ? data : (data?.data ?? []));
+    } catch (e: any) {
+      console.warn('Podium backend not available or empty, attempting winners fallback:', e?.message || e);
+      // Intentar fallback a winners por año
+      try {
+        const winnersPath = `/api/winners${params.toString() ? `?${params.toString()}` : ''}`;
+        const winners = await apiClient.get(winnersPath);
+        return res.status(200).json(Array.isArray(winners) ? winners : (winners?.data ?? []));
+      } catch (e2: any) {
+        console.warn('Winners fallback failed or empty, returning []:', e2?.message || e2);
+        return res.status(200).json([]);
+      }
     }
-    
-    const data = await response.json();
-    res.status(200).json(data);
   } catch (error) {
     console.error('Error fetching podium:', error);
-    res.status(500).json({ message: 'Error fetching podium data' });
+    return res.status(200).json([]);
   }
 }

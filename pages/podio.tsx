@@ -1,9 +1,12 @@
 import { GetStaticProps } from 'next';
+import React, { useEffect, useState } from 'react';
 import { Trophy } from "lucide-react";
 import Navbar from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { createErrorBanner, createNoDataBanner, logSsrError } from '../lib/errorHandler';
-import { getPodium, PodiumItemDTO } from '@/lib/api';
+import { getPodium, PodiumItemDTO, safeGet } from '@/lib/api';
+import Link from 'next/link';
+import { EmptyState } from '@/components/ui/empty-state';
 
 type Props = {
   year: number;
@@ -13,44 +16,137 @@ type Props = {
 };
 
 export default function PodioPage({ year, items, hasError, errorMessage }: Props) {
+  const [selectedYear, setSelectedYear] = useState<number>(year);
+  const [podioItems, setPodioItems] = useState<PodiumItemDTO[]>(items || []);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [clientError, setClientError] = useState<string | undefined>(undefined);
+
+  // Opciones de año (últimos 3 años)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
+
+  useEffect(() => {
+    // Cargar datos cuando cambia el año seleccionado (CSR)
+    const fetchPodio = async () => {
+      setLoading(true);
+      setClientError(undefined);
+      try {
+        const res = await safeGet<PodiumItemDTO[]>(`/api/podium?year=${selectedYear}`);
+        if (res.success && Array.isArray(res.data)) {
+          setPodioItems(res.data);
+        } else {
+          setPodioItems([]);
+        }
+      } catch (err: any) {
+        setPodioItems([]);
+        setClientError('Error al conectar con el servidor de podio');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Evitar petición innecesaria si el SSR ya trajo el mismo año
+    if (selectedYear !== year) {
+      fetchPodio();
+    } else {
+      // Asegurar que items SSR estén sincronizados cuando se monta
+      setPodioItems(items || []);
+    }
+  }, [selectedYear, year, items]);
+
+  const renderContent = () => {
+    if (loading) {
+      return createNoDataBanner('Cargando datos del podio...');
+    }
+
+    // Error de red: banner sutil y no invasivo
+    if (clientError) {
+      return (
+        <div className="rounded-xl border border-rose-200 bg-rose-50/80 text-rose-700 px-4 py-3 mb-4" role="alert">
+          {clientError}
+        </div>
+      );
+    }
+
+    if (podioItems && podioItems.length > 0) {
+      return (
+        <div className="grid gap-4">
+          {podioItems
+            .sort((a, b) => a.place - b.place)
+            .map((item) => (
+              <div key={`${item.activityId}-${item.place}`} className="rounded-2xl border border-black/10 bg-white/40 backdrop-blur-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] p-5 text-slate-900/90">
+                <div className="flex items-center gap-3 mb-2">
+                  <Trophy className="h-6 w-6" />
+                  <span className="text-lg font-semibold">Posición {item.place}</span>
+                </div>
+                <p className="text-xl font-bold mb-2">Actividad: {item.activityTitle}</p>
+                <p className="text-lg font-semibold mb-2">Ganador: {item.winnerName}</p>
+                <div className="text-sm text-slate-700/90 mt-2">
+                  {item.year && (
+                    <p>Año: {item.year}</p>
+                  )}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      );
+    }
+
+    // SIN datos
+    // Año vigente: no mostrar tarjeta de vacío. Mantener layout limpio.
+    if (selectedYear === currentYear) {
+      return null;
+    }
+
+    // Históricos sin datos: usar EmptyState elegante
+    return (
+      <div className="max-w-3xl mx-auto mt-10">
+        <EmptyState
+          icon="award"
+          title="Sin registros históricos"
+          message="Aún no hay resultados de ediciones anteriores."
+          actionLabel="Volver a inicio"
+          onAction={() => { /* navegación simple */ window.location.href = '/'; }}
+          className="bg-sky-50/80 text-sky-700 border border-sky-200"
+        />
+      </div>
+    );
+  };
+
   return (
-    <>
+    <div className="relative bg-congreso">
+      <div className="overlay-soft pointer-events-none" />
       <Navbar />
       <section className="mx-auto max-w-6xl px-4 sm:px-6 py-10">
-        <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900">Podio {year}</h1>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-3xl md:text-4xl font-bold text-heading">Podio {selectedYear}</h1>
+          <div className="flex items-center gap-2">
+            <label htmlFor="podium-year" className="text-sm text-slate-700">Año</label>
+            <select
+              id="podium-year"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="border border-black/10 rounded-md px-2 py-1 text-sm bg-white/70 backdrop-blur-sm"
+            >
+              {yearOptions.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {hasError && errorMessage && createErrorBanner(new Error(errorMessage), 'podio')}
-
-        {items && items.length > 0 ? (
-          <div className="grid gap-4">
-            {items
-              .sort((a, b) => a.place - b.place)
-              .map((item) => (
-                <div key={`${item.activityId}-${item.place}`} className="rounded-xl border border-neutral-300 bg-neutral-100 p-5 text-slate-900">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Trophy className="h-6 w-6" />
-                    <span className="text-lg font-semibold">Posición {item.place}</span>
-                  </div>
-                  <p className="text-xl font-bold mb-2">Actividad: {item.activityTitle}</p>
-                  <p className="text-lg font-semibold mb-2">Ganador: {item.winnerName}</p>
-                  <div className="text-sm text-slate-600 mt-2">
-                    {/* Campos opcionales según DTO actualizado */}
-                    {item.year && (
-                      <p>Año: {item.year}</p>
-                    )}
-                  </div>
-                </div>
-              ))
-            }
+        {/* Solo mostrar error SSR si hubo una excepción real durante la carga inicial */}
+        {hasError && errorMessage && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50/80 text-rose-700 px-4 py-3 mb-4" role="alert">
+            {errorMessage}
           </div>
-        ) : (
-          createNoDataBanner('No hay datos del podio disponibles en este momento.')
         )}
+
+        {renderContent()}
       </section>
       <Footer />
-    </>
+    </div>
   );
 }
 
@@ -63,13 +159,16 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 
   try {
     const res = await getPodium(year);
+    // Si el backend no tiene datos o responde con error, no mostrar banner de error SSR, solo vacíos
     items = res.status === 'ok' ? res.data : [];
+    // No marcar error por respuestas vacías o errores controlados; se mostrará el banner "Sin datos"
+    hasError = false;
+    errorMessage = '';
     if (res.status !== 'ok') {
-      hasError = true;
-      errorMessage = 'Error al cargar el podio';
       logSsrError('/api/podium', res);
     }
   } catch (error) {
+    // Solo en caso de excepción de red u otro error inesperado, mostrar banner de error SSR
     logSsrError('/api/podium', error);
     hasError = true;
     errorMessage = 'Error al conectar con el servidor de podio';

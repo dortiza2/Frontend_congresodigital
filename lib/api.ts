@@ -142,13 +142,19 @@ export async function apiDelete(path: string, init?: RequestInit) {
 }
 
 // Wrappers seguros: capturan ApiError y retornan un objeto uniforme
+// Helper para crear arrays vacíos tipados sin 'unknown'
+function emptyArray<T extends any[]>(): T {
+  // Usamos un valor de tipo 'any' seguro para construir el array vacío
+  return JSON.parse('[]') as T;
+}
+
 export async function safeGet<T extends any[]>(path: string): Promise<{ success: boolean; data: T; fromFallback: boolean; error?: { code: string; message: string; severity: 'error' | 'warning' | 'info' } }>{
   try {
     const data = await apiClient.get(path);
     return { success: true, data, fromFallback: false };
   } catch (err: any) {
     const message = err instanceof ApiError ? (err.details?.message ?? err.message ?? 'Error en API') : (err?.message ?? 'Error desconocido');
-    const fallback = [] as unknown as T;
+    const fallback = emptyArray<T>();
     return { success: false, data: fallback, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
   }
 }
@@ -159,7 +165,7 @@ export async function safePost<T extends any[]>(path: string, body?: any): Promi
     return { success: true, data, fromFallback: false };
   } catch (err: any) {
     const message = err instanceof ApiError ? (err.details?.message ?? err.message ?? 'Error en API') : (err?.message ?? 'Error desconocido');
-    const fallback = [] as unknown as T;
+    const fallback = emptyArray<T>();
     return { success: false, data: fallback, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
   }
 }
@@ -170,7 +176,7 @@ export async function safePut<T extends any[]>(path: string, body?: any): Promis
     return { success: true, data, fromFallback: false };
   } catch (err: any) {
     const message = err instanceof ApiError ? (err.details?.message ?? err.message ?? 'Error en API') : (err?.message ?? 'Error desconocido');
-    const fallback = [] as unknown as T;
+    const fallback = emptyArray<T>();
     return { success: false, data: fallback, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
   }
 }
@@ -181,7 +187,7 @@ export async function safeDelete<T extends any[]>(path: string): Promise<{ succe
     return { success: true, data, fromFallback: false };
   } catch (err: any) {
     const message = err instanceof ApiError ? (err.details?.message ?? err.message ?? 'Error en API') : (err?.message ?? 'Error desconocido');
-    const fallback = [] as unknown as T;
+    const fallback = emptyArray<T>();
     return { success: false, data: fallback, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
   }
 }
@@ -257,7 +263,7 @@ export async function getSpeakers(): Promise<ApiStandardResponse<PublicSpeakerDT
 }
 
 export async function getPodium(year?: number): Promise<ApiStandardResponse<PodiumItemDTO[]>> {
-  const path = typeof year === 'number' ? `/api/winners?year=${year}` : '/api/winners';
+  const path = typeof year === 'number' ? `/api/podium?year=${year}` : '/api/podium';
   const res = await safeGet<PodiumItemDTO[]>(path);
   const ok = res.success && Array.isArray(res.data);
   return {
@@ -277,3 +283,5 @@ export async function getCertificates(userId?: string): Promise<ApiStandardRespo
     timestamp: new Date().toISOString(),
   };
 }
+
+// Duplicado de getPodium eliminado; la versión correcta usa /api/podium

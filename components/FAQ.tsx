@@ -68,30 +68,33 @@ export const FAQ = ({ faq }: FAQProps) => {
           Preguntas Frecuentes
         </h2>
 
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full AccordionRoot mt-8 max-w-4xl mx-auto"
-        >
-          {displayFaq
-            .filter(item => item.published)
-            .sort((a, b) => a.position - b.position)
-            .map((item) => (
-            <AccordionItem
-              key={item.id}
-              value={`item-${item.id}`}
-              className="border border-neutral-300 mb-2 rounded-lg px-4"
-            >
-              <AccordionTrigger className="text-left">
-                {item.question}
-              </AccordionTrigger>
+        {/* Contenedor con fondo sutil para mejorar contraste */}
+        <div className="mt-8 max-w-4xl mx-auto rounded-2xl bg-white/50 backdrop-blur-sm ring-1 ring-black/10 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.18)] p-3 sm:p-5">
+          <Accordion
+            type="single"
+            collapsible
+            className="w-full AccordionRoot"
+          >
+            {displayFaq
+              .filter(item => item.published)
+              .sort((a, b) => a.position - b.position)
+              .map((item) => (
+              <AccordionItem
+                key={item.id}
+                value={`item-${item.id}`}
+                className="mb-3 last:mb-0 border-0 rounded-xl overflow-hidden ring-1 ring-black/5 bg-white/60 hover:bg-white/70 transition-colors shadow-sm data-[state=open]:shadow-md"
+              >
+                <AccordionTrigger className="text-left text-slate-900 px-4 py-3 sm:py-4 hover:no-underline">
+                  {item.question}
+                </AccordionTrigger>
 
-              <AccordionContent className="text-gray-700 leading-relaxed">
-                {item.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+                <AccordionContent className="px-4 pb-4 text-slate-700/90 leading-relaxed">
+                  {item.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
 
         {faq && faq.length === 0 && (
           <div className="mt-4 text-center text-sm text-gray-500">

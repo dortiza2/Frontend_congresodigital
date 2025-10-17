@@ -277,18 +277,18 @@ export function createErrorBanner(error: unknown, context?: string): React.React
  */
 export function createNoDataBanner(message?: string): React.ReactNode {
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+    <div className="rounded-xl p-4 sm:p-5 mb-4 border border-sky-200/50 bg-sky-50/70 ring-1 ring-sky-900/5 shadow-sm backdrop-blur-[2px]">
+      <div className="flex items-start gap-3">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-100/70 text-sky-500 ring-1 ring-sky-500/10">
+          <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
           </svg>
         </div>
-        <div className="ml-3">
-          <h3 className="text-sm font-medium text-blue-800">Sin datos disponibles</h3>
-          <div className="mt-2 text-sm text-blue-700">
-            <p>{message || 'No hay información para mostrar en este momento.'}</p>
-          </div>
+        <div>
+          <h3 className="text-sm font-semibold text-sky-900/90">Sin datos disponibles</h3>
+          <p className="mt-1 text-sm leading-relaxed text-sky-800/80">
+            {message || 'No hay información para mostrar en este momento.'}
+          </p>
         </div>
       </div>
     </div>
@@ -322,8 +322,6 @@ export function useErrorHandler() {
   };
 }
 
-// ==================== EXPORT DEFAULT ====================
-
 export default {
   detectErrorType,
   getUserFriendlyErrorMessage,
@@ -338,17 +336,12 @@ export default {
   useErrorHandler
 };
 
-// ==================== SSR Logging Helper ====================
+/**
+ * Log para errores SSR con contexto del endpoint
+ */
 export function logSsrError(endpoint: string, error: unknown): void {
-  const ts = new Date().toISOString();
-  const err = typeof error === 'object' && error !== null
-    ? (error as { message?: string; status?: unknown; code?: unknown })
-    : undefined;
-  const message = typeof error === 'string' ? error : (err?.message || 'SSR error');
-  const status = (err?.status as string | number | undefined) ?? (err?.code as string | number | undefined) ?? 'unknown';
-  // Prefer console.error for SSR visibility
-  // Include endpoint and timestamp for quick diagnostics
-  // Avoid throwing to not break ISR
-  // eslint-disable-next-line no-console
-  console.error(`[SSR:${ts}] endpoint=${endpoint} status=${status} message=${message}`);
+  if (process.env.NODE_ENV === 'development') {
+    // Evitar logs ruidosos en producción
+    console.error(`[SSR] Error en endpoint ${endpoint}:`, error);
+  }
 }

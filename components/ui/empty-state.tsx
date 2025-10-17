@@ -34,9 +34,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   const Icon = icons[icon];
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 p-8 text-center ${className}`}>
+    <div className={`rounded-2xl border border-black/10 bg-white/60 backdrop-blur-sm p-8 text-center shadow-sm ${className}`}>
       <div className="flex justify-center mb-4">
-        <Icon className="h-12 w-12 text-gray-400" />
+        <Icon className="h-12 w-12 text-slate-400" />
       </div>
       <h3 className="text-lg font-semibold text-slate-900 mb-2">{title}</h3>
       <p className="text-slate-600 mb-6 max-w-sm mx-auto">{message}</p>
@@ -46,7 +46,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           {actionLabel && onAction && (
             <button
               onClick={onAction}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center"
+              className="bg-sky-600 text-white px-4 py-2 rounded-md hover:bg-sky-700 transition-colors shadow-sm"
             >
               {actionLabel}
             </button>
@@ -54,7 +54,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           {secondaryActionLabel && onSecondaryAction && (
             <button
               onClick={onSecondaryAction}
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors flex items-center"
+              className="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors shadow-sm"
             >
               {secondaryActionLabel}
             </button>

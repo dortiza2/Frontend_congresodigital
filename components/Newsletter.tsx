@@ -1,10 +1,95 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card, CardContent } from "./ui/card";
-import { useState } from "react";
-import { GraduationCap, Users, Trophy, BookOpen, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
+import { GraduationCap, Users, Trophy, BookOpen, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { saveContactEmail } from "../lib/tempStorage";
 import Image from "next/image";
+
+function CarruselNewsletter() {
+  const [current, setCurrent] = useState(0);
+  const [auto, setAuto] = useState(true);
+
+  const images = [
+    {
+      src: "/assets/ingenieria.png",
+      alt: "Ingeniería en Sistemas",
+      credit: "https://www.umg.edu.gt"
+    },
+    {
+      src: "/assets/ingenieria2.png", 
+      alt: "Laboratorio de Computación",
+      credit: "https://www.umg.edu.gt"
+    },
+    {
+      src: "/assets/ingenieria3.png",
+      alt: "Estudiantes de Ingeniería",
+      credit: "https://www.umg.edu.gt"
+    }
+  ];
+
+  useEffect(() => {
+    if (!auto) return;
+    const id = setInterval(() => setCurrent((c) => (c + 1) % images.length), 5000);
+    return () => clearInterval(id);
+  }, [auto, images.length]);
+
+  const next = () => setCurrent((c) => (c + 1) % images.length);
+  const prev = () => setCurrent((c) => (c - 1 + images.length) % images.length);
+
+  return (
+    <div
+      className="relative h-96 rounded-2xl overflow-hidden shadow-lg"
+      onMouseEnter={() => setAuto(false)}
+      onMouseLeave={() => setAuto(true)}
+    >
+      <div className="relative w-full h-full">
+        {images.map((img, i) => (
+          <div
+            key={i}
+            className={`absolute inset-0 transition-opacity duration-500 ${i === current ? "opacity-100" : "opacity-0"}`}
+          >
+            <Image
+              src={img.src}
+              alt={img.alt}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              priority={i === 0}
+              unoptimized
+            />
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={prev}
+        className="group absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/80 text-slate-700 border border-black/10 shadow-lg hover:bg-white hover:shadow-xl transition-all backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-emerald-500"
+        aria-label="Anterior"
+      >
+        <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
+      </button>
+      <button
+        onClick={next}
+        className="group absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/80 text-slate-700 border border-black/10 shadow-lg hover:bg-white hover:shadow-xl transition-all backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-emerald-500"
+        aria-label="Siguiente"
+      >
+        <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+      </button>
+
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+        {images.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            className={`w-2.5 h-2.5 rounded-full ${i === current ? "bg-white" : "bg-white/70 hover:bg-white"}`}
+            aria-label={`Ir a imagen ${i + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export const Newsletter = () => {
   const [email, setEmail] = useState("");
@@ -83,18 +168,15 @@ export const Newsletter = () => {
               </div>
             </div>
 
-            {/* Imagen de la carrera */}
+            {/* Carrusel reemplazando imagen fija */}
             <div className="lg:order-first">
-              <div className="relative h-96 rounded-2xl overflow-hidden">
-                <Image
-                  src="/assets/ingenieria.png"
-                  alt="Ingeniería en Sistemas - Universidad Mariano Gálvez"
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover"
-                  priority
-                />
-              </div>
+              <Image
+                src="/assets/ingenieria.png"
+                alt="Ingeniería en Sistemas"
+                width={800}
+                height={600}
+                className="rounded-2xl shadow-lg"
+              />
             </div>
           </div>
 
@@ -145,7 +227,7 @@ export const Newsletter = () => {
                   </div>
                   <Button 
                     variant="outline" 
-                    className="w-full"
+                    className="w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
                     asChild
                   >
                     <a 
@@ -169,7 +251,7 @@ export const Newsletter = () => {
                   </div>
                   <Button 
                     variant="outline" 
-                    className="w-full"
+                    className="w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
                     asChild
                   >
                     <a 
@@ -193,7 +275,7 @@ export const Newsletter = () => {
                   </div>
                   <Button 
                     variant="outline" 
-                    className="w-full"
+                    className="w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
                     asChild
                   >
                     <a 
@@ -217,7 +299,7 @@ export const Newsletter = () => {
                   </div>
                   <Button 
                     variant="outline" 
-                    className="w-full"
+                    className="w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
                     asChild
                   >
                     <a 

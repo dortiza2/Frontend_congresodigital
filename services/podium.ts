@@ -20,7 +20,7 @@ export type PodiumItem = {
 export const getPodiumByYear = async (year?: number): Promise<PodiumItem[]> => {
   const targetYear = year ?? new Date().getFullYear();
   const url = API_ENDPOINTS.PODIUM.BY_YEAR(String(targetYear));
-  const res = await safeGet<any>(url);
+  const res = await safeGet<any[]>(url);
   if (res.success && Array.isArray(res.data)) {
     return res.data.map((w: any) => ({
       year: Number(w.year ?? targetYear),

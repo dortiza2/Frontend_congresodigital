@@ -43,12 +43,8 @@ export default function AsistenciaPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleScanQR = () => {
-    setIsScanning(true);
-    // Simular escaneo
-    setTimeout(() => {
-      setIsScanning(false);
-      alert('QR escaneado exitosamente!');
-    }, 2000);
+    // Redirigir al escáner real
+    window.location.href = '/staff/scan';
   };
 
   const filteredData = attendanceData.filter(
