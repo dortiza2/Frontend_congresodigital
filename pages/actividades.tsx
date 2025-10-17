@@ -2,8 +2,7 @@ import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { Activities } from '@/components/Activities';
 import { getActivities } from '@/lib/api';
-import { adaptActivity } from '@/lib/adapters/activity';
-import type { PublicActivity } from '@/lib/adapters/activity';
+import { adaptActivity, type PublicActivity, type RawActivityData } from '@/lib/adapters/activity';
 
 interface ActivitiesPageProps {
   activities: PublicActivity[];
@@ -33,7 +32,7 @@ export const getStaticProps: GetStaticProps<ActivitiesPageProps> = async () => {
   try {
     const activitiesRes = await getActivities();
     const activities: PublicActivity[] = Array.isArray(activitiesRes.data)
-      ? (activitiesRes.data as any[]).map(adaptActivity)
+      ? activitiesRes.data.map((a: RawActivityData) => adaptActivity(a))
       : [];
     const error = activitiesRes.status !== 'ok';
     return {

@@ -53,13 +53,13 @@ export interface ActivityStats {
 
 export interface PagedActivitiesResponse {
   activities: Activity[];
-  totalCount: number;
+  total: number;
   page: number;
   pageSize: number;
   totalPages: number;
 }
 
-const fetcher = (url: string) => apiClient.get(url).then(res => res.data);
+const fetcher = (url: string) => apiClient.get(url);
 
 export const useActivities = (page = 1, pageSize = 10, filters?: {
   type?: string;
@@ -84,9 +84,9 @@ export const useActivities = (page = 1, pageSize = 10, filters?: {
   );
 
   return {
-    activities: data?.activities || [],
-    totalCount: data?.totalCount || 0,
-    totalPages: data?.totalPages || 0,
+    activities: data?.activities ?? [],
+    total: data?.total ?? 0,
+    totalPages: data?.totalPages ?? 0,
     isLoading,
     error,
     mutate
@@ -124,9 +124,9 @@ export const createActivity = async (activity: CreateActivityRequest): Promise<A
   try {
     const response = await apiClient.post(API_ENDPOINTS.ADMIN.ACTIVITIES, activity);
     toast.success('Actividad creada exitosamente');
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al crear la actividad';
+    const message = error?.details?.message ?? error?.message ?? 'Error al crear la actividad';
     toast.error(message);
     throw error;
   }
@@ -136,9 +136,9 @@ export const updateActivity = async (id: string, activity: UpdateActivityRequest
   try {
     const response = await apiClient.put(`${API_ENDPOINTS.ADMIN.ACTIVITIES}/${id}`, activity);
     toast.success('Actividad actualizada exitosamente');
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al actualizar la actividad';
+    const message = error?.details?.message ?? error?.message ?? 'Error al actualizar la actividad';
     toast.error(message);
     throw error;
   }
@@ -149,7 +149,7 @@ export const deleteActivity = async (id: string): Promise<void> => {
     await apiClient.delete(`${API_ENDPOINTS.ADMIN.ACTIVITIES}/${id}`);
     toast.success('Actividad eliminada exitosamente');
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al eliminar la actividad';
+    const message = error?.details?.message ?? error?.message ?? 'Error al eliminar la actividad';
     toast.error(message);
     throw error;
   }
@@ -159,9 +159,9 @@ export const toggleActivityStatus = async (id: string): Promise<Activity> => {
   try {
     const response = await apiClient.patch(`${API_ENDPOINTS.ADMIN.ACTIVITIES}/${id}/toggle`);
     toast.success('Estado de actividad actualizado');
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al cambiar el estado de la actividad';
+    const message = error?.details?.message ?? error?.message ?? 'Error al cambiar el estado de la actividad';
     toast.error(message);
     throw error;
   }

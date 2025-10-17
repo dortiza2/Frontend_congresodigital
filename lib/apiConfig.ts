@@ -174,13 +174,9 @@ export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.BASE_URL}${endpoint}`;
 };
 
-// Función helper para manejar errores de API
+// Función helper para manejar errores de API compatible con ApiError
 export const handleApiError = (error: any): string => {
-  if (error.response?.data?.message) {
-    return error.response.data.message;
-  }
-  if (error.message) {
-    return error.message;
-  }
+  if (error?.details?.message) return error.details.message;
+  if (typeof error?.message === 'string' && error.message.trim()) return error.message;
   return 'Error desconocido en la API';
 };

@@ -15,7 +15,7 @@ import { getFaq, FaqItem } from '@/services/faq';
 // Se elimina ApiStandardResponse por no usarse
 import { getActivities, getSpeakers, PublicActivityDTO, PublicSpeakerDTO } from '@/lib/api';
 import { handleDataLoadError, createErrorBanner, createNoDataBanner, logSsrError } from '@/lib/errorHandler';
-import { adaptActivity, type PublicActivity } from '@/lib/adapters/activity';
+import { adaptActivity, type PublicActivity, type RawActivityData } from '@/lib/adapters/activity';
 import type { PublicSpeaker as SpeakerType } from '@/services/speakers';
 
 type Props = {
@@ -28,18 +28,17 @@ type Props = {
 
 function App({ activities, faq, speakers, hasError, errorMessage }: Props) {
   const activitiesUi: PublicActivity[] = Array.isArray(activities)
-    ? (activities as any[]).map(adaptActivity)
+    ? activities.map((a: RawActivityData) => adaptActivity(a))
     : [];
 
   const speakersUi: SpeakerType[] = Array.isArray(speakers)
-    ? (speakers as PublicSpeakerDTO[]).map(s => ({
+    ? speakers.map((s: PublicSpeakerDTO) => ({
         id: String(s.id ?? ''),
         name: s.name ?? 'Ponente',
         bio: s.bio,
         company: s.company,
         roleTitle: s.roleTitle,
         avatarUrl: s.avatarUrl ?? '/avatars/default.svg',
-        links: (s as any).links,
       }))
     : [];
 
@@ -89,8 +88,8 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
     }
   } catch (error) {
     logSsrError('/api/activities', error);
-    const errorResult = handleDataLoadError(error, 'actividades');
-    activities = errorResult.data as any[];
+    const errorResult = handleDataLoadError<PublicActivityDTO>(error, 'actividades');
+    activities = errorResult.data ?? [];
     hasError = true;
     errorMessage = errorResult.message;
   }
@@ -112,8 +111,8 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
     }
   } catch (error) {
     logSsrError('/api/speakers', error);
-    const errorResult = handleDataLoadError(error, 'ponentes');
-    speakers = errorResult.data as any[];
+    const errorResult = handleDataLoadError<PublicSpeakerDTO>(error, 'ponentes');
+    speakers = errorResult.data ?? [];
     hasError = true;
     errorMessage = errorResult.message;
   }

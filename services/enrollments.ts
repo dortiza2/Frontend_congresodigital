@@ -359,11 +359,11 @@ export async function getCurrentUserEnrollmentsSummary(): Promise<{ count: numbe
 export async function validateTimeConflictWithUserEnrollments(activityIds: string[]) {
   try {
     await api.post("/enrollments/validate-time-conflict", { activityIds });
-    return { ok: true };
+    return { success: true };
   } catch (e) {
     const err = e as ApiError;
     if (err.status === 409 || (err.status === 400 && /conflict|overlap|same time/i.test(err.message || ""))) {
-      return { ok: false, reason: "conflict" };
+      return { success: false, reason: "conflict" };
     }
     throw err;
   }

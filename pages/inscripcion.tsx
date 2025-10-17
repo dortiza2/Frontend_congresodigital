@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ActivitiesService } from '@/lib/activitiesService';
-import { fetchPublicActivities, validateTimeConflicts, type PublicActivity } from '@/services/activities';
-import { createEnrollment, type UserEnrollment, validateTimeConflictWithUserEnrollments } from '@/services/enrollments';
+import { fetchPublicActivities, type PublicActivity } from '@/services/activities';
+import { createEnrollment, type UserEnrollment, validateTimeConflictWithUserEnrollments, EnrollmentService } from '@/services/enrollments';
 import { authService, login, register } from '@/services/auth';
 import { getRedirectPath, handleLoginSuccess } from '@/lib/authClient';
 import Logo from '@/components/Logo';
@@ -281,7 +281,7 @@ export default function InscripcionPage() {
         } else {
           setGoogleErrors({ general: 'No pudimos iniciar sesión. Intenta de nuevo.' });
         }
-      } else if (result?.ok) {
+      } else if (result && (result as { ok?: boolean }).ok) {
         // Login exitoso con Google
         setGoogleErrors({ general: 'Sesión iniciada correctamente' });
         
@@ -484,12 +484,20 @@ export default function InscripcionPage() {
 
     try {
       setValidatingConflicts(true);
-      const apiResult = await api.post('enrollments/validate-time-conflicts', { ActivityIds: activityIds.map(id => id) });
-      
+      const resp = await EnrollmentService.validateTimeConflicts({ activityIds });
+
+      if (!resp.success) {
+        const msg = resp.error?.message || 'Validación de conflictos no disponible temporalmente';
+        const fallback = { hasConflicts: false, conflicts: [], message: msg };
+        setConflictValidationResult(fallback);
+        return fallback;
+      }
+
+      const data = resp.data || { hasConflicts: false, conflicts: [], message: undefined };
       const result = {
-        hasConflicts: apiResult.hasConflicts,
-        conflicts: apiResult.conflicts.map((c: any) => `${c.selectedActivityTitle} conflicta con ${c.conflictingActivityTitle}`),
-        message: apiResult.hasConflicts ? 'Se encontraron conflictos de horario' : 'No hay conflictos de horario'
+        hasConflicts: !!data.hasConflicts,
+        conflicts: Array.isArray(data.conflicts) ? data.conflicts : [],
+        message: data.message || (data.hasConflicts ? 'Se encontraron conflictos de horario' : 'No hay conflictos de horario')
       };
       
       setConflictValidationResult(result);
@@ -554,9 +562,9 @@ export default function InscripcionPage() {
         let errorMessage = 'Error desconocido';
         if (error instanceof ApiError) {
           errorMessage = getUserFriendlyErrorMessage(error);
-        } else if (error.response?.data?.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.message) {
+        } else if (error?.details?.message) {
+          errorMessage = error.details.message;
+        } else if (error?.message) {
           errorMessage = error.message;
         }
         
@@ -660,7 +668,7 @@ export default function InscripcionPage() {
     const ids = selectedActivities;
 
     const chk = await validateTimeConflictWithUserEnrollments(ids);
-    if (!chk.ok && chk.reason === "conflict") {
+    if (chk && chk.success === false && chk.reason === "conflict") {
       showError("Ya cuenta con una actividad o charla con el mismo horario.");
       setEnrolling(false); 
       return;
@@ -1058,7 +1066,7 @@ export default function InscripcionPage() {
             ].map(filter => (
               <button
                 key={filter.key}
-                onClick={() => setFilterKind(filter.key as any)}
+                onClick={() => setFilterKind(filter.key as 'all' | 'taller' | 'competencia' | 'conferencia')}
                 className={`px-4 py-2 rounded-md text-sm font-medium ${
                   filterKind === filter.key
                     ? 'bg-slate-900 text-white'

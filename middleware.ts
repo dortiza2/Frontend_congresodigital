@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import type { JWT } from 'next-auth/jwt';
 
 // Configuración de rutas y roles
 const PROTECTED_ROUTES = {
@@ -28,6 +29,17 @@ function matchesRoute(pathname: string, patterns: string[]): boolean {
   return patterns.some((pattern) => pathname === pattern || pathname.startsWith(pattern + '/'));
 }
 
+// Guard mínimo para backendData
+function isBackendAuthData(x: unknown): x is { user?: { roleLevel?: number; roles?: string[] } } {
+  if (typeof x !== 'object' || x === null) return false;
+  const obj = x as Record<string, unknown>;
+  if (!('user' in obj)) return false;
+  const user = obj.user;
+  if (user === undefined) return true;
+  if (typeof user !== 'object' || user === null) return false;
+  return true;
+}
+
 /**
  * Determina si una ruta es pública
  */
@@ -38,7 +50,7 @@ function isPublicRoute(pathname: string): boolean {
 /**
  * Obtiene el nivel de rol del usuario
  */
-function getUserRoleLevel(token: any): number {
+function getUserRoleLevel(token: JWT | null): number {
   if (!token) return 0;
 
   // Preferir roleLevel del token
@@ -47,12 +59,14 @@ function getUserRoleLevel(token: any): number {
   }
 
   // Buscar roleLevel dentro de backendData si existe
-  if (token.backendData?.user?.roleLevel) {
-    return token.backendData.user.roleLevel;
+  const backendData = token.backendData;
+  if (isBackendAuthData(backendData) && typeof backendData.user?.roleLevel === 'number') {
+    return backendData.user.roleLevel;
   }
 
   // Derivar por roles en caso de no tener roleLevel
-  const roles: string[] = (token.roles || token.backendData?.user?.roles || []).map((r: string) => r.toLowerCase());
+  const rolesSource: string[] | undefined = token.roles || (isBackendAuthData(backendData) ? backendData.user?.roles : undefined);
+  const roles = (rolesSource || []).map((r: string) => r.toLowerCase());
   if (roles.includes('mgadmin') || roles.includes('devadmin')) return 3; // DevAdmin
   if (roles.includes('admin')) return 2; // Admin
   if (roles.includes('asistente') || roles.includes('assistant') || roles.includes('staff')) return 1; // Staff
@@ -86,7 +100,7 @@ export async function middleware(request: NextRequest) {
   try {
     // Obtener token de NextAuth
     const token = await getToken({
-      req: request as any, // Workaround para compatibilidad de tipos NextAuth
+      req: request,
       secret: process.env.NEXTAUTH_SECRET,
     });
 

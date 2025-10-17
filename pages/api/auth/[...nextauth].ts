@@ -3,6 +3,25 @@ import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import type { NextAuthOptions } from 'next-auth'
 
+// Tipo mínimo para datos del backend y type guard
+type BackendAuthData = {
+  user?: {
+    OrgName?: string;
+    organization?: string;
+    roles?: string[];
+    roleLevel?: number;
+    Id?: string;
+    id?: string;
+  };
+  token?: string;
+};
+
+function isBackendAuthData(x: unknown): x is BackendAuthData {
+  if (typeof x !== 'object' || x === null) return false;
+  const obj = x as Record<string, unknown>;
+  return 'user' in obj || 'token' in obj;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     ...(((process.env.NEXT_PUBLIC_ENABLE_GOOGLE ?? 'true') !== 'false') && process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
@@ -112,8 +131,8 @@ export const authOptions: NextAuthOptions = {
         token.image = user.image
         
         // Datos del backend si están disponibles
-        if (user.backendData) {
-          const backendData = user.backendData;
+        const backendData = user.backendData;
+        if (isBackendAuthData(backendData)) {
           token.organization = backendData.user?.OrgName || backendData.user?.organization || ''
           token.roles = backendData.user?.roles || []
           token.roleLevel = backendData.user?.roleLevel || 0
@@ -127,18 +146,17 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       // Pasar datos del token a la sesión
-      if (token) {
-        const user = session.user as any;
-        user.id = token.id as string
-        user.name = token.name as string
-        user.email = token.email as string
-        user.image = token.image as string
-        user.organization = token.organization as string
-        user.roles = token.roles as string[]
-        user.roleLevel = token.roleLevel as number
-        user.roleCodes = token.roleCodes as string[] || token.roles as string[]
-        if (token.backendId) user.backendId = token.backendId as string
-        if (token.backendToken) user.backendToken = token.backendToken as string
+      if (token && session.user) {
+        session.user.id = token.id as string
+        session.user.name = token.name as string
+        session.user.email = token.email as string
+        session.user.image = token.image as string
+        session.user.organization = token.organization as string
+        session.user.roles = token.roles as string[]
+        session.user.roleLevel = token.roleLevel as number
+        session.user.roleCodes = (token.roleCodes as string[]) || (token.roles as string[])
+        if (token.backendId) session.user.backendId = token.backendId as string
+        if (token.backendToken) session.user.backendToken = token.backendToken as string
       }
       return session
     },

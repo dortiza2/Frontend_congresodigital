@@ -29,7 +29,7 @@ export const ActivityManager = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingActivity, setDeletingActivity] = useState<any>(null);
 
-  const { activities, totalCount, totalPages, isLoading, error, mutate } = useActivities(
+  const { activities, total, totalPages, isLoading, error, mutate } = useActivities(
     page,
     pageSize,
     filters
@@ -334,7 +334,7 @@ export const ActivityManager = () => {
       {totalPages > 1 && (
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-500">
-            Mostrando {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, totalCount)} de {totalCount} actividades
+            Mostrando {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, total)} de {total} actividades
           </div>
           <Pagination
             currentPage={page}

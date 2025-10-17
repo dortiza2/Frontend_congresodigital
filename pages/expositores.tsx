@@ -4,6 +4,7 @@ import { Footer } from '@/components/Footer';
 import { Speakers } from '@/components/Speakers';
 import { getSpeakers, ApiStandardResponse, PublicSpeakerDTO } from '@/lib/api';
 import { createErrorBanner, createNoDataBanner, handleDataLoadError, logSsrError } from '@/lib/errorHandler';
+import type { PublicSpeaker as SpeakerType } from '@/services/speakers';
 
 type Props = {
   speakers: PublicSpeakerDTO[];
@@ -12,13 +13,24 @@ type Props = {
 };
 
 export default function ExpositoresPage({ speakers, hasError, errorMessage }: Props) { // Expositores page implemented with ISR
+  const speakersUi: SpeakerType[] = Array.isArray(speakers)
+    ? speakers.map((s: PublicSpeakerDTO) => ({
+        id: String(s.id ?? ''),
+        name: s.name ?? 'Ponente',
+        bio: s.bio,
+        company: s.company,
+        roleTitle: s.roleTitle,
+        avatarUrl: s.avatarUrl ?? '/avatars/default.svg'
+      }))
+    : [];
+
   return (
     <>
       <Navbar />
       <main className="page-container">
         {hasError && errorMessage && createErrorBanner(new Error(errorMessage), 'expositores')}
-        {speakers && speakers.length > 0 ? (
-          <Speakers speakers={speakers as any} />
+        {speakersUi && speakersUi.length > 0 ? (
+          <Speakers speakers={speakersUi} />
         ) : (
           createNoDataBanner('No hay expositores disponibles por el momento.')
         )}
@@ -43,8 +55,8 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
     }
   } catch (error) {
     logSsrError('/api/speakers', error);
-    const handled = handleDataLoadError(error, 'expositores');
-    speakers = (handled.data as any[]) || [];
+    const handled = handleDataLoadError<PublicSpeakerDTO>(error, 'expositores');
+    speakers = handled.data ?? [];
     hasError = true;
     errorMessage = handled.message;
   }

@@ -17,12 +17,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await fetch(url);
     if (!response.ok) {
       const text = await response.text();
-      return res.status(500).json({ ok: false, error: 'Error fetching activities', details: text });
+      return res.status(500).json({ success: false, error: 'Error fetching activities', details: text });
     }
     const data = await response.json();
 
+    type AgendaItem = {
+      id: string;
+      title: string;
+      startISO: string;
+      endISO: string;
+      place?: string;
+      speakerId?: string | number;
+      day: string;
+      type: string;
+    };
+
     // Mapear a estructura de agenda coherente
-    const items = Array.isArray(data) ? data.map((item: any) => ({
+    const items: AgendaItem[] = Array.isArray(data) ? data.map((item: any): AgendaItem => ({
       id: String(item.id ?? item.activityId ?? ''),
       title: item.title ?? 'Sin título',
       startISO: item.startTime ?? item.startISO ?? new Date().toISOString(),
@@ -30,13 +41,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       place: item.location ?? item.place ?? undefined,
       speakerId: item.speakerId ?? undefined,
       day: String((item.startTime ?? item.startISO ?? new Date().toISOString()).split('T')[0]),
-      type: item.activityType?.toLowerCase() ?? 'actividad'
+      type: (typeof item.activityType === 'string' ? item.activityType : 'actividad').toLowerCase()
     })) : [];
 
-    const filtered = typeof day === 'string' ? items.filter((i: any) => i.day === day) : items;
+    const filtered = typeof day === 'string' ? items.filter((i: AgendaItem) => i.day === day) : items;
 
     return res.status(200).json(filtered);
   } catch (error: any) {
-    return res.status(500).json({ ok: false, error: 'Agenda proxy failed', details: String(error?.message || error) });
+    return res.status(500).json({ success: false, error: 'Agenda proxy failed', details: String(error?.message || error) });
   }
 }

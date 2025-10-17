@@ -142,43 +142,47 @@ export async function apiDelete(path: string, init?: RequestInit) {
 }
 
 // Wrappers seguros: capturan ApiError y retornan un objeto uniforme
-export async function safeGet<T>(path: string): Promise<{ success: boolean; data: T; fromFallback: boolean; error?: { code: string; message: string; severity: 'error' | 'warning' | 'info' } }>{
+export async function safeGet<T extends any[]>(path: string): Promise<{ success: boolean; data: T; fromFallback: boolean; error?: { code: string; message: string; severity: 'error' | 'warning' | 'info' } }>{
   try {
     const data = await apiClient.get(path);
     return { success: true, data, fromFallback: false };
   } catch (err: any) {
     const message = err instanceof ApiError ? (err.details?.message ?? err.message ?? 'Error en API') : (err?.message ?? 'Error desconocido');
-    return { success: false, data: [] as unknown as T, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
+    const fallback = [] as unknown as T;
+    return { success: false, data: fallback, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
   }
 }
 
-export async function safePost<T>(path: string, body?: any): Promise<{ success: boolean; data: T; fromFallback: boolean; error?: { code: string; message: string; severity: 'error' | 'warning' | 'info' } }>{
+export async function safePost<T extends any[]>(path: string, body?: any): Promise<{ success: boolean; data: T; fromFallback: boolean; error?: { code: string; message: string; severity: 'error' | 'warning' | 'info' } }>{
   try {
     const data = await apiClient.post(path, body);
     return { success: true, data, fromFallback: false };
   } catch (err: any) {
     const message = err instanceof ApiError ? (err.details?.message ?? err.message ?? 'Error en API') : (err?.message ?? 'Error desconocido');
-    return { success: false, data: [] as unknown as T, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
+    const fallback = [] as unknown as T;
+    return { success: false, data: fallback, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
   }
 }
 
-export async function safePut<T>(path: string, body?: any): Promise<{ success: boolean; data: T; fromFallback: boolean; error?: { code: string; message: string; severity: 'error' | 'warning' | 'info' } }>{
+export async function safePut<T extends any[]>(path: string, body?: any): Promise<{ success: boolean; data: T; fromFallback: boolean; error?: { code: string; message: string; severity: 'error' | 'warning' | 'info' } }>{
   try {
     const data = await apiClient.put(path, body);
     return { success: true, data, fromFallback: false };
   } catch (err: any) {
     const message = err instanceof ApiError ? (err.details?.message ?? err.message ?? 'Error en API') : (err?.message ?? 'Error desconocido');
-    return { success: false, data: [] as unknown as T, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
+    const fallback = [] as unknown as T;
+    return { success: false, data: fallback, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
   }
 }
 
-export async function safeDelete<T>(path: string): Promise<{ success: boolean; data: T; fromFallback: boolean; error?: { code: string; message: string; severity: 'error' | 'warning' | 'info' } }>{
+export async function safeDelete<T extends any[]>(path: string): Promise<{ success: boolean; data: T; fromFallback: boolean; error?: { code: string; message: string; severity: 'error' | 'warning' | 'info' } }>{
   try {
     const data = await apiClient.del(path);
     return { success: true, data, fromFallback: false };
   } catch (err: any) {
     const message = err instanceof ApiError ? (err.details?.message ?? err.message ?? 'Error en API') : (err?.message ?? 'Error desconocido');
-    return { success: false, data: [] as unknown as T, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
+    const fallback = [] as unknown as T;
+    return { success: false, data: fallback, fromFallback: true, error: { code: 'API_ERROR', message, severity: 'error' } };
   }
 }
 
@@ -233,43 +237,43 @@ export interface CertificateDTO {
 // ==================== Funciones unificadas ====================
 export async function getActivities(kinds?: string): Promise<ApiStandardResponse<PublicActivityDTO[]>> {
   const path = kinds ? `/api/activities?type=${encodeURIComponent(kinds)}` : '/api/activities';
-  const res = await safeGet<any[]>(path);
+  const res = await safeGet<PublicActivityDTO[]>(path);
   const ok = res.success && Array.isArray(res.data);
   return {
     status: ok ? 'ok' : 'error',
-    data: ok ? (res.data as PublicActivityDTO[]) : [],
+    data: ok ? res.data : [],
     timestamp: new Date().toISOString(),
   };
 }
 
 export async function getSpeakers(): Promise<ApiStandardResponse<PublicSpeakerDTO[]>> {
-  const res = await safeGet<any[]>('/api/speakers');
+  const res = await safeGet<PublicSpeakerDTO[]>('/api/speakers');
   const ok = res.success && Array.isArray(res.data);
   return {
     status: ok ? 'ok' : 'error',
-    data: ok ? (res.data as PublicSpeakerDTO[]) : [],
+    data: ok ? res.data : [],
     timestamp: new Date().toISOString(),
   };
 }
 
 export async function getPodium(year?: number): Promise<ApiStandardResponse<PodiumItemDTO[]>> {
   const path = typeof year === 'number' ? `/api/winners?year=${year}` : '/api/winners';
-  const res = await safeGet<any[]>(path);
+  const res = await safeGet<PodiumItemDTO[]>(path);
   const ok = res.success && Array.isArray(res.data);
   return {
     status: ok ? 'ok' : 'error',
-    data: ok ? (res.data as PodiumItemDTO[]) : [],
+    data: ok ? res.data : [],
     timestamp: new Date().toISOString(),
   };
 }
 
 export async function getCertificates(userId?: string): Promise<ApiStandardResponse<CertificateDTO[]>> {
   const path = userId ? `/api/certificates?userId=${encodeURIComponent(userId)}` : '/api/certificates';
-  const res = await safeGet<any[]>(path);
+  const res = await safeGet<CertificateDTO[]>(path);
   const ok = res.success && Array.isArray(res.data);
   return {
     status: ok ? 'ok' : 'error',
-    data: ok ? (res.data as CertificateDTO[]) : [],
+    data: ok ? res.data : [],
     timestamp: new Date().toISOString(),
   };
 }

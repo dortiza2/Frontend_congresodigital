@@ -79,7 +79,7 @@ export class SpeakerService {
   // Admin: Obtener speaker por ID
   static async getSpeakerById(id: string): Promise<Speaker> {
     const response = await apiClient.get(API_ENDPOINTS.SPEAKERS.GET_BY_ID(id));
-    return response.data;
+    return response;
   }
 
   // Admin: Crear nuevo speaker
@@ -91,7 +91,7 @@ export class SpeakerService {
   // Admin: Actualizar speaker
   static async updateSpeaker(id: string, speakerData: UpdateSpeakerRequest): Promise<Speaker> {
     const response = await apiClient.put(API_ENDPOINTS.SPEAKERS.UPDATE(id), speakerData);
-    return response.data;
+    return response;
   }
 
   // Admin: Eliminar speaker

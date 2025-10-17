@@ -72,8 +72,10 @@ export default function ActividadesPage() {
   const loadActivities = async () => {
     const res = await getAll();
     const items = res?.data?.items;
-    if (items && Array.isArray(items)) {
-      setActivities(items as unknown as Activity[]);
+    if (Array.isArray(items)) {
+      setActivities(items);
+    } else {
+      setActivities([]);
     }
   };
 

@@ -17,8 +17,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Clock, MapPin, User, Calendar } from "lucide-react";
 import type { PublicActivity } from '@/services/activities';
 import type { PublicSpeaker } from '@/services/speakers';
-import { adaptActivity } from '@/lib/adapters/activity';
-import { getActivities as getActivitiesApi, getSpeakers as getSpeakersApi } from '@/lib/api';
+import { adaptActivity, type RawActivityData } from '@/lib/adapters/activity';
+import { getActivities as getActivitiesApi, getSpeakers as getSpeakersApi, type PublicSpeakerDTO } from '@/lib/api';
 import { formatGTTime, formatGTShort } from "@/lib/datetime";
 
 type EventStatus = 'not-started' | 'ongoing' | 'finished';
@@ -85,15 +85,15 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
 // Si recibimos datos iniciales desde SSR, usarlos y evitar fetch inicial
 
       if ((initialActivities && initialActivities.length > 0) || (initialSpeakers && initialSpeakers.length > 0)) {
-        const activitiesData = initialActivities;
-        const speakersData = initialSpeakers;
+        const activitiesData: PublicActivity[] = initialActivities;
+        const speakersData: PublicSpeaker[] = initialSpeakers;
         setSpeakers(speakersData);
         const days = getUniqueDays(activitiesData);
         setAvailableDays(days);
         if (days.length > 0 && !selectedDay) {
           setSelectedDay(days[0]);
         }
-        const processedActivities = activitiesData.map(item => {
+        const processedActivities: ActivityWithSpeaker[] = activitiesData.map(item => {
           const speaker = item.speakerId
             ? speakersData.find(s => s.id === item.speakerId)
             : undefined;
@@ -113,18 +113,17 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
         getActivitiesApi(),
         getSpeakersApi()
       ]);
-      const activitiesData = (activitiesResponse.status === 'ok' && Array.isArray(activitiesResponse.data))
-        ? (activitiesResponse.data as any[]).map(adaptActivity)
+      const activitiesData: PublicActivity[] = (activitiesResponse.status === 'ok' && Array.isArray(activitiesResponse.data))
+        ? activitiesResponse.data.map((a: RawActivityData) => adaptActivity(a))
         : [];
-      const speakersData = (speakersResponse.status === 'ok' && Array.isArray(speakersResponse.data))
-        ? (speakersResponse.data as any[]).map(s => ({
+      const speakersData: PublicSpeaker[] = (speakersResponse.status === 'ok' && Array.isArray(speakersResponse.data))
+        ? speakersResponse.data.map((s: PublicSpeakerDTO) => ({
             id: String(s.id ?? ''),
             name: s.name ?? 'Ponente',
             bio: s.bio,
             company: s.company,
             roleTitle: s.roleTitle,
-            avatarUrl: s.avatarUrl ?? '/avatars/default.svg',
-            links: (s as any).links
+            avatarUrl: s.avatarUrl ?? '/avatars/default.svg'
           }))
         : [];
       
@@ -138,7 +137,7 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
         }
         
         // Procesar actividades con vínculo a speakers (si existe speakerId)
-        const processedActivities = activitiesData.map(item => {
+        const processedActivities: ActivityWithSpeaker[] = activitiesData.map(item => {
           const speaker = item.speakerId
             ? speakersData.find(s => s.id === item.speakerId)
             : undefined;

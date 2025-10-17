@@ -76,16 +76,36 @@ function MarcarAsistenciaContent() {
 
   // Función para procesar asistencia
   const markAttendance = async (qrData: string): Promise<ScanResult> => {
+    interface MarkAttendanceApiResponse {
+      success: boolean;
+      message?: string;
+      data?: {
+        attendanceId?: string;
+        checkInTime?: string;
+        userId?: string | number;
+        activityId?: string | number;
+      };
+      error?: string;
+    }
+
     try {
-      const data = await apiClient.post('attendance/mark', { qrData, userId: user?.id }) as any;
+      const res: MarkAttendanceApiResponse = await apiClient.post('attendance/mark', { qrData, userId: user?.id });
 
       // Marcar que se necesita refrescar los datos de inscripciones
       localStorage.setItem('refreshEnrollments', 'true');
       
+      if (res.success) {
+        return {
+          success: true,
+          message: res.message || 'Asistencia registrada exitosamente',
+          type: 'success'
+        };
+      }
+
       return {
-        success: true,
-        message: data.message || 'Asistencia registrada exitosamente',
-        type: 'success'
+        success: false,
+        message: res.message || res.error || 'No se pudo registrar la asistencia',
+        type: 'error'
       };
     } catch (error) {
       console.error('Error marking attendance:', error);

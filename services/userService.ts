@@ -67,7 +67,7 @@ export class UserService {
       const data = await apiClient.get(`${API_ENDPOINTS.USERS.LIST}?${params}`) as UserListResponse;
       return data;
     } catch (error: any) {
-      throw new Error(error instanceof Error ? error.message : 'Error desconocido');
+      throw new Error(error?.details?.message ?? error?.message ?? 'Error desconocido');
     }
   }
 
@@ -77,34 +77,34 @@ export class UserService {
   static async getUserById(id: string): Promise<User | null> {
     try {
       const data = await apiClient.get(API_ENDPOINTS.USERS.GET_BY_ID(id)) as User;
-      return data;
+      return data || null;
     } catch (error: any) {
-      if (error.message?.includes('404')) return null;
-      throw new Error(error instanceof Error ? error.message : 'Error desconocido');
+      if (APP_CONFIG.DEV.ENABLE_DEBUG_LOGS) console.warn('Error getting user by id', error);
+      return null;
     }
   }
 
   /**
-   * Crear nuevo usuario
+   * Crear usuario
    */
   static async createUser(userData: CreateUserRequest): Promise<User> {
     try {
       const data = await apiClient.post(API_ENDPOINTS.USERS.CREATE, userData) as User;
       return data;
     } catch (error: any) {
-      throw new Error(error instanceof Error ? error.message : 'Error desconocido');
+      throw new Error(error?.details?.message ?? error?.message ?? 'Error desconocido');
     }
   }
 
   /**
-   * Actualizar usuario existente
+   * Actualizar usuario
    */
   static async updateUser(id: string, userData: UpdateUserRequest): Promise<User> {
     try {
-      const data = await apiClient.post(API_ENDPOINTS.USERS.UPDATE(id), userData) as User;
+      const data = await apiClient.put(API_ENDPOINTS.USERS.UPDATE(id), userData) as User;
       return data;
     } catch (error: any) {
-      throw new Error(error instanceof Error ? error.message : 'Error desconocido');
+      throw new Error(error?.details?.message ?? error?.message ?? 'Error desconocido');
     }
   }
 
@@ -116,34 +116,31 @@ export class UserService {
       await apiClient.delete(API_ENDPOINTS.USERS.DELETE(id));
       return true;
     } catch (error: any) {
-      throw new Error(error instanceof Error ? error.message : 'Error desconocido');
+      throw new Error(error?.details?.message ?? error?.message ?? 'Error desconocido');
     }
   }
 
   /**
-   * Reactivar usuario inactivo
+   * Reactivar usuario
    */
   static async reactivateUser(id: string): Promise<User> {
     try {
       const data = await apiClient.post(API_ENDPOINTS.USERS.UPDATE(id), { status: 'active' }) as User;
       return data;
     } catch (error: any) {
-      throw new Error(error instanceof Error ? error.message : 'Error desconocido');
+      throw new Error(error?.details?.message ?? error?.message ?? 'Error desconocido');
     }
   }
 
   /**
-   * Reset de contraseña de usuario
+   * Resetear contraseña de usuario
    */
   static async resetPassword(id: string, newPassword?: string): Promise<{ temporaryPassword: string }> {
     try {
-      const data = await apiClient.post(
-        API_ENDPOINTS.USERS.RESET_PASSWORD(id), 
-        newPassword ? { password: newPassword } : {}
-      ) as { temporaryPassword: string };
+      const data = await apiClient.post(API_ENDPOINTS.USERS.RESET_PASSWORD(id), { newPassword }) as { temporaryPassword: string };
       return data;
     } catch (error: any) {
-      throw new Error(error instanceof Error ? error.message : 'Error desconocido');
+      throw new Error(error?.details?.message ?? error?.message ?? 'Error desconocido');
     }
   }
 
@@ -165,14 +162,11 @@ export class UserService {
       };
       return data;
     } catch (error: any) {
-      throw new Error(error instanceof Error ? error.message : 'Error desconocido');
+      throw new Error(error?.details?.message ?? error?.message ?? 'Error desconocido');
     }
   }
 }
 
-/**
- * Hook personalizado para usar el servicio de usuarios
- */
 export function useUserService() {
   return {
     getUsers: UserService.getUsers,
@@ -181,28 +175,22 @@ export function useUserService() {
     updateUser: UserService.updateUser,
     deleteUser: UserService.deleteUser,
     reactivateUser: UserService.reactivateUser,
-    resetPassword: UserService.resetPassword,
-    getUserStats: UserService.getUserStats
+    getUserStats: UserService.getUserStats,
   };
 }
 
-/**
- * Utilidades de validación
- */
 export const UserValidation = {
-  /**
-   * Validar formato de email
-   */
-  isValidEmail: (email: string): boolean => {
-    return APP_CONFIG.VALIDATION.EMAIL_REGEX.test(email);
+  isValidName: (name: string): boolean => {
+    return typeof name === 'string' && name.trim().length >= 2;
   },
 
-  /**
-   * Validar contraseña
-   */
+  isValidEmail: (email: string): boolean => {
+    return /.+@.+\..+/.test(email);
+  },
+
   isValidPassword: (password: string): boolean => {
-    return password.length >= APP_CONFIG.VALIDATION.PASSWORD_MIN_LENGTH;
-  }
+    return typeof password === 'string' && password.length >= 6;
+  },
 };
 
 // SWR Hooks for user management
@@ -224,10 +212,14 @@ export const useUsers = (page = 1, pageSize = 10, filters?: {
     fetcher
   );
 
+  const total = data?.total ?? 0;
+  const users = data?.users ?? [];
+  const totalPages = Math.ceil(total / (pageSize || 1));
+
   return {
-    users: data?.users || [],
-    totalCount: data?.total || 0,
-    totalPages: Math.ceil((data?.total || 0) / pageSize),
+    users,
+    total,
+    totalPages,
     isLoading,
     error,
     mutate
@@ -254,9 +246,9 @@ export const useUserStats = () => {
 export const updateUserRole = async (userId: string, roleData: { role: 'ADMIN' | 'ASISTENTE' }): Promise<User> => {
   try {
     const response = await apiClient.put(API_ENDPOINTS.USERS.UPDATE(userId), roleData);
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al actualizar rol del usuario';
+    const message = (error?.details?.message ?? error?.message) || 'Error al actualizar rol del usuario';
     throw new Error(message);
   }
 };
@@ -264,9 +256,9 @@ export const updateUserRole = async (userId: string, roleData: { role: 'ADMIN' |
 export const updateUserStatus = async (userId: string, statusData: { status: 'active' | 'inactive' }): Promise<User> => {
   try {
     const response = await apiClient.put(API_ENDPOINTS.USERS.UPDATE(userId), statusData);
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al actualizar estado del usuario';
+    const message = (error?.details?.message ?? error?.message) || 'Error al actualizar estado del usuario';
     throw new Error(message);
   }
 };
@@ -275,7 +267,7 @@ export const deleteUser = async (userId: string): Promise<void> => {
   try {
     await apiClient.delete(API_ENDPOINTS.USERS.DELETE(userId));
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al eliminar usuario';
+    const message = (error?.details?.message ?? error?.message) || 'Error al eliminar usuario';
     throw new Error(message);
   }
 };

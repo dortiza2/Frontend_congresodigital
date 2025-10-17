@@ -50,7 +50,7 @@ export const InviteModal = ({ isOpen, onClose, onSuccess }: InviteModalProps) =>
         message: ''
       });
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Error al enviar la invitación';
+      const message = error?.details?.message ?? error?.message ?? 'Error al enviar la invitación';
       toast.error(message);
     } finally {
       setIsLoading(false);

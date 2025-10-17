@@ -27,7 +27,7 @@ export const UserTable = ({ currentUserId }: UserTableProps) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingUser, setDeletingUser] = useState<any>(null);
 
-  const { users, totalCount, totalPages, isLoading, error, mutate } = useUsers(
+  const { users, total, totalPages, isLoading, error, mutate } = useUsers(
     page,
     pageSize,
     {
@@ -68,7 +68,7 @@ export const UserTable = ({ currentUserId }: UserTableProps) => {
       toast.success('Rol actualizado exitosamente');
       mutate();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Error al actualizar el rol';
+      const message = error?.details?.message ?? error?.message ?? 'Error al actualizar el rol';
       toast.error(message);
     }
   };
@@ -79,7 +79,7 @@ export const UserTable = ({ currentUserId }: UserTableProps) => {
       toast.success(`Usuario ${isActive ? 'activado' : 'desactivado'} exitosamente`);
       mutate();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Error al actualizar el estado';
+      const message = error?.details?.message ?? error?.message ?? 'Error al actualizar el estado';
       toast.error(message);
     }
   };
@@ -94,7 +94,7 @@ export const UserTable = ({ currentUserId }: UserTableProps) => {
       setDeletingUser(null);
       mutate();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Error al eliminar el usuario';
+      const message = error?.details?.message ?? error?.message ?? 'Error al eliminar el usuario';
       toast.error(message);
     }
   };
@@ -255,7 +255,7 @@ export const UserTable = ({ currentUserId }: UserTableProps) => {
       {totalPages > 1 && (
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-500">
-            Mostrando {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, totalCount)} de {totalCount} usuarios
+            Mostrando {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, total)} de {total} usuarios
           </div>
           <Pagination
             currentPage={page}

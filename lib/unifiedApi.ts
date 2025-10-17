@@ -213,6 +213,9 @@ const loadLocalMockData = async <T>(_filename: string): Promise<T[]> => {
   return [];
 };
 
+// Helper: array vacío tipado sin usar unknown
+const emptyOf = <T extends any[]>(): T => ([] as T[number][]) as T;
+
 // ==================== SERVICIO API PRINCIPAL ====================
 
 /**
@@ -237,7 +240,7 @@ export const unifiedApi = {
 
       // Llamar a la API
       const endpoint = kinds ? `/api/activities?type=${kinds}` : '/api/activities';
-      const result = await safeGet<any>(endpoint);
+      const result = await safeGet<any[]>(endpoint);
       
       let activities: PublicActivity[] = [];
       
@@ -297,7 +300,7 @@ export const unifiedApi = {
       }
 
       // Llamar a la API
-      const result = await safeGet<any>('/api/speakers');
+      const result = await safeGet<any[]>(`/api/speakers`);
       
       let speakers: PublicSpeaker[] = [];
       
@@ -341,7 +344,7 @@ export const unifiedApi = {
 
       // Llamar a la API
       const endpoint = `/api/podium?year=${targetYear}`;
-      const result = await safeGet<any>(endpoint);
+      const result = await safeGet<any[]>(endpoint);
       
       let podium: PodiumItem[] = [];
       
@@ -400,7 +403,7 @@ export const unifiedApi = {
         ? `/api/certificates?userId=${userId}`
         : '/api/student/certificates';
       
-      const result = await safeGet<any>(endpoint);
+      const result = await safeGet<any[]>(endpoint);
       
       let certificates: Certificate[] = [];
       
@@ -492,7 +495,7 @@ export const unifiedApi = {
 /**
  * Wrapper para getStaticProps con manejo de errores
  */
-export async function getStaticPropsWithApi<T>(
+export async function getStaticPropsWithApi<T extends any[]>(
   fetcher: () => Promise<ApiResponse<T>>,
   options: { revalidate?: number } = {}
 ): Promise<{ props: { data: T; error: boolean; timestamp: string } }> {
@@ -511,7 +514,7 @@ export async function getStaticPropsWithApi<T>(
     
     return {
       props: {
-        data: [] as unknown as T,
+        data: emptyOf<T>(),
         error: true,
         timestamp: getTimestamp()
       }
@@ -522,7 +525,7 @@ export async function getStaticPropsWithApi<T>(
 /**
  * Wrapper para getServerSideProps con manejo de errores
  */
-export async function getServerSidePropsWithApi<T>(
+export async function getServerSidePropsWithApi<T extends any[]>(
   fetcher: () => Promise<ApiResponse<T>>
 ): Promise<{ props: { data: T; error: boolean; timestamp: string } }> {
   try {
@@ -540,7 +543,7 @@ export async function getServerSidePropsWithApi<T>(
     
     return {
       props: {
-        data: [] as unknown as T,
+        data: emptyOf<T>(),
         error: true,
         timestamp: getTimestamp()
       }

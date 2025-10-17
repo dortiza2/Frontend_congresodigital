@@ -11,7 +11,7 @@ import type {
 import { getSpeakers as getSpeakersFromAPI } from '@/services/speakers';
 import { getActivities as getActivitiesFromService } from '@/services/activities';
 import { getPodiumByYear } from '@/services/podium';
-import { safeGet } from '@/lib/api';
+import { safeGet, apiClient } from '@/lib/api';
 import { API_ENDPOINTS } from '@/lib/apiConfig';
 
 // Re-exportar tipos para compatibilidad
@@ -56,7 +56,7 @@ export async function getSpeakers(): Promise<Speaker[]> {
 }
 
 export async function getAgenda(day?: string): Promise<AgendaItem[]> {
-  const { success, data } = await safeGet<any>(API_ENDPOINTS.ACTIVITIES.PUBLIC_LIST);
+  const { success, data } = await safeGet<any[]>(API_ENDPOINTS.ACTIVITIES.PUBLIC_LIST);
   if (!success || !Array.isArray(data)) return [];
   const agenda: AgendaItem[] = data.map((item: any) => ({
     id: String(item.id ?? item.activityId ?? ''),
@@ -117,12 +117,16 @@ export async function getEditions(): Promise<{
   const currentYear = new Date().getFullYear();
   try {
     // Si existe endpoint real, usarlo; de lo contrario mantener estructura mínima
-    const { success, data } = await safeGet<any>('/api/editions');
-    if (success && data && typeof data === 'object') {
+    const res = await apiClient.get('/api/editions');
+    if (res && typeof res === 'object') {
+      const obj = res as Record<string, unknown>;
+      const current = typeof obj.currentYear === 'number' ? obj.currentYear : currentYear;
+      const years = Array.isArray(obj.availableYears) ? (obj.availableYears as unknown[]).map(y => Number(y)) : [currentYear];
+      const edition = (obj.hasEdition && typeof obj.hasEdition === 'object') ? (obj.hasEdition as Record<string, boolean>) : { [String(currentYear)]: true };
       return {
-        currentYear: Number(data.currentYear ?? currentYear),
-        availableYears: Array.isArray(data.availableYears) ? data.availableYears.map(Number) : [currentYear],
-        hasEdition: data.hasEdition ?? { [String(currentYear)]: true }
+        currentYear: Number(current),
+        availableYears: years,
+        hasEdition: edition
       };
     }
   } catch (error) {
@@ -138,9 +142,9 @@ export async function getEditions(): Promise<{
 export async function getCareerInfo(): Promise<CareerInfo> {
   // Si existe endpoint real, usarlo; caso contrario retornar vacío controlado
   try {
-    const { success, data } = await safeGet<any>('/api/career');
+    const { success, data } = await safeGet<any[]>('/api/career');
     if (success && data) {
-      return data as CareerInfo;
+      return data as unknown as CareerInfo;
     }
   } catch (error) {
     // log controlado

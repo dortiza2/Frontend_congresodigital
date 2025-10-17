@@ -51,25 +51,56 @@ export interface UpdateActivityRequest {
   published?: boolean;
 }
 
-export interface ActivityResponse extends ServiceResponse<ActivityUI> {}
-export interface ActivitiesListResponse extends ServiceResponse<ListResponse<ActivityUI>> {}
+// Alinear respuestas a DTO (no ActivityUI) para páginas admin
+export interface ActivityResponse extends ServiceResponse<Activity> {}
+export interface ActivitiesListResponse extends ServiceResponse<ListResponse<Activity>> {}
 
 export class ActivityService {
   static async getAll(): Promise<ActivitiesListResponse> {
     try {
-      const res = await apiClient.get(API_ENDPOINTS.ACTIVITIES.LIST);
-      return res;
+      const raw = await apiClient.get(API_ENDPOINTS.ACTIVITIES.LIST);
+      // Normalizar distintas formas de respuesta a ServiceResponse<ListResponse<Activity>>
+      if (Array.isArray(raw)) {
+        return { success: true, data: { items: raw, total: raw.length, hasMore: false } } as ActivitiesListResponse;
+      }
+      if (raw?.items && Array.isArray(raw.items)) {
+        return { success: true, data: { items: raw.items, total: raw.total ?? raw.items.length, hasMore: raw.hasMore ?? false } } as ActivitiesListResponse;
+      }
+      if (raw?.data?.items && Array.isArray(raw.data.items)) {
+        // Ya está envuelto como ServiceResponse
+        return raw as ActivitiesListResponse;
+      }
+      if (raw?.data && Array.isArray(raw.data)) {
+        return { success: true, data: { items: raw.data, total: raw.data.length, hasMore: false } } as ActivitiesListResponse;
+      }
+      // Fallback: intentar mapear si llegó un objeto de actividad simple
+      const items = raw && typeof raw === 'object' ? [raw] : [];
+      return { success: true, data: { items, total: items.length, hasMore: false } } as ActivitiesListResponse;
     } catch (error) {
-      return { ok: false, data: { items: [], total: 0 }, error: { code: 'API_ERROR', message: 'Error al obtener actividades' } } as any;
+      const fallback: ActivitiesListResponse = {
+        success: false,
+        fromFallback: true,
+        data: { items: [], total: 0, hasMore: false },
+        error: { code: 'API_ERROR', message: 'Error al obtener actividades', severity: 'error' }
+      };
+      return fallback;
     }
   }
 
   static async getById(id: string): Promise<ActivityResponse> {
     try {
-      const res = await apiClient.get(API_ENDPOINTS.ACTIVITIES.GET_BY_ID(id));
-      return res;
+      const raw = await apiClient.get(API_ENDPOINTS.ACTIVITIES.GET_BY_ID(id));
+      if (raw?.data) {
+        return raw as ActivityResponse;
+      }
+      return { success: true, data: raw } as ActivityResponse;
     } catch (error) {
-      return { ok: false, data: {} as any, error: { code: 'NOT_FOUND', message: 'Actividad no encontrada' } } as any;
+      const fallback: ActivityResponse = {
+        success: false,
+        fromFallback: true,
+        error: { code: 'NOT_FOUND', message: 'Actividad no encontrada', severity: 'error' }
+      };
+      return fallback;
     }
   }
 
@@ -133,7 +164,7 @@ export function useActivityService() {
 // Público: obtener actividades sin fallback a JSON local
 export const getActivities = async (kinds?: string): Promise<PublicActivity[]> => {
   const endpoint = kinds ? `${API_ENDPOINTS.ACTIVITIES.PUBLIC_LIST}?type=${kinds}` : API_ENDPOINTS.ACTIVITIES.PUBLIC_LIST;
-  const res = await safeGet<any>(endpoint);
+  const res = await safeGet<any[]>(endpoint);
   if (res.success && Array.isArray(res.data)) {
     return res.data.map((a: any) => adaptActivity(a));
   }
@@ -141,7 +172,7 @@ export const getActivities = async (kinds?: string): Promise<PublicActivity[]> =
 };
 
 export async function fetchPublicActivities(): Promise<PublicActivity[]> {
-  const res = await safeGet<any>(API_ENDPOINTS.ACTIVITIES.PUBLIC_LIST);
+  const res = await safeGet<any[]>(API_ENDPOINTS.ACTIVITIES.PUBLIC_LIST);
   if (res.success && Array.isArray(res.data)) {
     return res.data.map((a: any) => adaptActivity(a));
   }
@@ -179,7 +210,7 @@ export class ActivityValidation {
   static validateActivityType(activityType: string): string | null {
     const validTypes = ['CHARLA', 'TALLER', 'COMPETENCIA'];
     if (!validTypes.includes(activityType)) {
-      return 'El tipo de actividad debe ser CHARLA, TALLER o COMPETENCIA';
+      return 'Tipo de actividad inválido';
     }
     return null;
   }
@@ -188,46 +219,26 @@ export class ActivityValidation {
     if (!location || location.trim().length === 0) {
       return 'La ubicación es requerida';
     }
-    if (location.length < 2) {
-      return 'La ubicación debe tener al menos 2 caracteres';
-    }
-    if (location.length > 100) {
-      return 'La ubicación no puede exceder 100 caracteres';
-    }
     return null;
   }
 
   static validateCapacity(capacity: number): string | null {
-    if (!capacity || capacity <= 0) {
+    if (capacity <= 0) {
       return 'La capacidad debe ser mayor a 0';
     }
     if (capacity > 1000) {
-      return 'La capacidad no puede exceder 1000 participantes';
+      return 'La capacidad no puede exceder 1000';
     }
     return null;
   }
 
   static validateTimeRange(startTime: string, endTime: string): string | null {
     if (!startTime || !endTime) {
-      return 'Los horarios de inicio y fin son requeridos';
+      return 'La hora de inicio y fin son requeridas';
     }
-    
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    
-    if (start >= end) {
-      return 'La hora de fin debe ser posterior a la hora de inicio';
+    if (new Date(endTime) <= new Date(startTime)) {
+      return 'La hora de fin debe ser posterior a la de inicio';
     }
-    
-    const duration = (end.getTime() - start.getTime()) / (1000 * 60); // minutes
-    if (duration < 30) {
-      return 'La duración mínima es de 30 minutos';
-    }
-    
-    if (duration > 480) { // 8 hours
-      return 'La duración máxima es de 8 horas';
-    }
-    
     return null;
   }
 }
@@ -243,23 +254,18 @@ export function isActivityAvailable(activity: PublicActivity): boolean {
 
 export async function validateTimeConflicts(activityIds: string[]): Promise<{ hasConflicts: boolean; conflicts: string[]; message?: string; }> {
   try {
-    if (activityIds.length < 2) {
-      return { hasConflicts: false, conflicts: [] };
-    }
-    const data = await apiClient.post('/api/enrollments/validate-time-conflicts', { ActivityIds: activityIds }) as { hasConflicts: boolean; conflicts: string[]; message?: string; };
-    return { hasConflicts: data.hasConflicts || false, conflicts: data.conflicts || [], message: data.message };
-  } catch (error) {
-    console.error('Error validating time conflicts:', error);
-    return { hasConflicts: false, conflicts: [], message: 'Error al validar conflictos de tiempo' };
+    const res = await apiClient.post('/enrollments/validate-time-conflicts', { ActivityIds: activityIds });
+    return { hasConflicts: !!res?.hasConflicts, conflicts: Array.isArray(res?.conflicts) ? res.conflicts : [], message: res?.message };
+  } catch (error: any) {
+    return { hasConflicts: false, conflicts: [], message: error?.message ?? 'No se pudo validar conflictos' };
   }
 }
 
-export async function validateTimeConflictsEnhanced(activityIds: number[]): Promise<{ hasConflicts: boolean; conflicts: ConflictDetail[]; }> {
+export async function validateTimeConflictsEnhanced(activityIds: number[]): Promise<{ hasConflicts: boolean; conflicts: ConflictDetail[]; message?: string; }> {
   try {
-    const data = await apiClient.post('/api/enrollments/validate-time-conflicts', { ActivityIds: activityIds });
-    return data;
+    const res = await apiClient.post('/enrollments/validate-time-conflicts', { ActivityIds: activityIds });
+    return { hasConflicts: !!res?.hasConflicts, conflicts: Array.isArray(res?.conflicts) ? res.conflicts : [], message: res?.message };
   } catch (error) {
-    console.error('Error validating time conflicts:', error);
-    return { hasConflicts: false, conflicts: [] };
+    return { hasConflicts: false, conflicts: [], message: 'No se pudo validar conflictos' };
   }
 }

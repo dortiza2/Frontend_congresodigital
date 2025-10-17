@@ -4,7 +4,7 @@
  */
 
 // Tipo para datos crudos del API (snake_case)
-interface RawActivityData {
+export interface RawActivityData {
   id?: string | number;
   title?: string;
   type?: string;
@@ -218,9 +218,9 @@ export function adaptActivities(rawData: any): PublicActivity[] {
     
     return items
       .filter(item => item && typeof item === 'object')
-      .map(item => adaptActivity(item));
-  } catch (error) {
-    console.error('Error adaptando actividades:', error);
+      .map(adaptActivity);
+  } catch (err) {
+    console.error('Error al adaptar actividades:', err);
     return [];
   }
 }

@@ -4,19 +4,12 @@ import { Agenda } from '@/components/Agenda';
 import { getActivities, getSpeakers } from '@/lib/api';
 import type { PublicActivity } from '@/lib/adapters/activity';
 import type { PublicSpeakerDTO } from '@/lib/api';
-import { adaptActivity } from '@/lib/adapters/activity';
+import type { PublicSpeaker } from '@/services/speakers';
+import { adaptActivity, type RawActivityData } from '@/lib/adapters/activity';
 
 interface AgendaPageProps {
   activities: PublicActivity[];
-  speakers: {
-    id: string;
-    name: string;
-    bio?: string;
-    company?: string;
-    roleTitle?: string;
-    avatarUrl?: string;
-    links?: any;
-  }[];
+  speakers: PublicSpeaker[];
   error?: boolean;
 }
 
@@ -47,18 +40,17 @@ export const getStaticProps: GetStaticProps<AgendaPageProps> = async () => {
     ]);
 
     const activities: PublicActivity[] = Array.isArray(activitiesRes.data)
-      ? (activitiesRes.data as any[]).map(adaptActivity)
+      ? (activitiesRes.data as RawActivityData[]).map(adaptActivity)
       : [];
 
-    const speakers = Array.isArray(speakersRes.data)
+    const speakers: PublicSpeaker[] = Array.isArray(speakersRes.data)
       ? (speakersRes.data as PublicSpeakerDTO[]).map(s => ({
           id: String(s.id ?? ''),
           name: s.name ?? 'Ponente',
           bio: s.bio,
           company: s.company,
           roleTitle: s.roleTitle,
-          avatarUrl: s.avatarUrl ?? '/avatars/default.svg',
-          links: (s as any).links,
+          avatarUrl: s.avatarUrl || '/avatars/default.svg',
         }))
       : [];
 

@@ -90,17 +90,19 @@ const SUCCESS_MESSAGES = {
 /**
  * Detecta el tipo de error basado en el objeto de error
  */
-export function detectErrorType(error: any): ErrorType {
+export function detectErrorType(error: unknown): ErrorType {
   if (!error) return 'UNKNOWN_ERROR';
-  
+
+  const err = error as Record<string, any> | undefined;
+
   // Errores de red
-  if (error.code === 'ECONNREFUSED' || error.code === 'NETWORK_ERROR') {
+  if (err && (err.code === 'ECONNREFUSED' || err.code === 'NETWORK_ERROR')) {
     return 'NETWORK_ERROR';
   }
   
   // Errores HTTP
-  if (error.status) {
-    switch (error.status) {
+  if (err && typeof err.status === 'number') {
+    switch (err.status) {
       case 400:
         return 'VALIDATION_ERROR';
       case 401:
@@ -118,13 +120,13 @@ export function detectErrorType(error: any): ErrorType {
   }
   
   // Errores de JavaScript
-  if (error.name === 'TypeError' && error.message?.includes('fetch')) {
+  if (err && err.name === 'TypeError' && typeof err.message === 'string' && err.message.includes('fetch')) {
     return 'NETWORK_ERROR';
   }
   
   // Mensajes de error específicos
-  if (error.message) {
-    const message = error.message.toLowerCase();
+  if (err && typeof err.message === 'string') {
+    const message = err.message.toLowerCase();
     if (message.includes('network') || message.includes('conexión')) {
       return 'NETWORK_ERROR';
     }
@@ -142,13 +144,14 @@ export function detectErrorType(error: any): ErrorType {
 /**
  * Obtiene un mensaje de error amigable para el usuario
  */
-export function getUserFriendlyErrorMessage(error: any, context?: string): string {
+export function getUserFriendlyErrorMessage(error: unknown, context?: string): string {
   const errorType = detectErrorType(error);
   const errorConfig = ERROR_MESSAGES[errorType];
   
   // Si es un error de API con mensaje específico, usarlo
-  if (error?.message && errorType === 'API_ERROR') {
-    return error.message;
+  const err = error as Record<string, any> | undefined;
+  if (err?.message && errorType === 'API_ERROR') {
+    return err.message as string;
   }
   
   // Mensaje contextualizado
@@ -162,7 +165,7 @@ export function getUserFriendlyErrorMessage(error: any, context?: string): strin
 /**
  * Muestra una notificación de error
  */
-export function showErrorNotification(error: any, context?: string): void {
+export function showErrorNotification(error: unknown, context?: string): void {
   const errorType = detectErrorType(error);
   const errorConfig = ERROR_MESSAGES[errorType];
   
@@ -211,75 +214,57 @@ export function showWarningNotification(title: string, message?: string): void {
 /**
  * Maneja errores de API de forma centralizada
  */
-export function handleApiError(error: any, context?: string): { success: false; error: ApiError } {
+export function handleApiError(error: unknown, context?: string): { success: false; error: ApiError } {
   const errorType = detectErrorType(error);
-  const errorConfig = ERROR_MESSAGES[errorType];
-  
-  const apiError: ApiError = {
+  let apiError: ApiError = {
     code: errorType,
-    message: getUserFriendlyErrorMessage(error, context),
-    details: error?.details || error,
-    status: error?.status
+    message: getUserFriendlyErrorMessage(error, context)
   };
-  
-  // Mostrar notificación al usuario
-  showErrorNotification(error, context);
-  
-  // Log en desarrollo
-  if (process.env.NODE_ENV === 'development') {
-    console.error(`[API Error] ${context || 'Unknown context'}:`, error);
+
+  if (error && typeof error === 'object') {
+    const errObj = error as Record<string, unknown>;
+    if (typeof errObj.code === 'string') apiError.code = errObj.code;
+    if (typeof errObj.message === 'string') apiError.message = errObj.message;
+    if (typeof errObj.status === 'number') apiError.status = errObj.status;
+    if (Object.prototype.hasOwnProperty.call(errObj, 'details')) {
+      apiError.details = (errObj as { details?: unknown }).details;
+    }
   }
-  
+
   return { success: false, error: apiError };
 }
 
 /**
  * Maneja errores de carga de datos (para SSR/CSR)
  */
-export function handleDataLoadError(error: any, dataType: string): { data: any[]; error: boolean; message: string } {
+export function handleDataLoadError<T>(error: unknown, dataType: string): { data: T[]; error: boolean; message: string } {
   const errorType = detectErrorType(error);
-  const errorConfig = ERROR_MESSAGES[errorType];
-  
-  // Log del error
-  console.warn(`[Data Load Error] Failed to load ${dataType}:`, error);
-  
-  // Mostrar notificación solo si no es SSR
-  if (typeof window !== 'undefined') {
-    showWarningNotification(
-      `Datos no disponibles`,
-      `No se pudieron cargar los ${dataType}. ${errorConfig.description}`
-    );
-  }
-  
+  const message = getUserFriendlyErrorMessage(error, `Carga de ${dataType}`);
   return {
     data: [],
-    error: true,
-    message: errorConfig.message
+    error: errorType !== 'UNKNOWN_ERROR',
+    message,
   };
 }
 
 /**
  * Crea un banner de error para mostrar en la UI
  */
-export function createErrorBanner(error: any, context?: string): React.ReactNode {
+export function createErrorBanner(error: unknown, context?: string): React.ReactNode {
   const errorType = detectErrorType(error);
   const errorConfig = ERROR_MESSAGES[errorType];
+  const message = getUserFriendlyErrorMessage(error, context);
   
   return (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+    <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md" role="alert">
       <div className="flex">
-        <div className="flex-shrink-0">
-          <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-          </svg>
-        </div>
+        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-.707-9.293a1 1 0 011.414 0L11 8.586l.293-.293a1 1 0 111.414 1.414L12.414 10l.293.293a1 1 0 01-1.414 1.414L11 11.414l-.293.293a1 1 0 01-1.414-1.414L9.586 10l-.293-.293a1 1 0 010-1.414z" clipRule="evenodd" />
+        </svg>
         <div className="ml-3">
-          <h3 className="text-sm font-medium text-red-800">{errorConfig.title}</h3>
+          <h3 className="text-sm font-medium">{errorConfig.title}</h3>
           <div className="mt-2 text-sm text-red-700">
-            <p>{context ? `${errorConfig.message} (${context})` : errorConfig.message}</p>
-            {errorConfig.description && (
-              <p className="mt-1">{errorConfig.description}</p>
-            )}
+            <p>{message}</p>
           </div>
         </div>
       </div>
@@ -354,10 +339,13 @@ export default {
 };
 
 // ==================== SSR Logging Helper ====================
-export function logSsrError(endpoint: string, error: any): void {
+export function logSsrError(endpoint: string, error: unknown): void {
   const ts = new Date().toISOString();
-  const message = typeof error === 'string' ? error : (error?.message || 'SSR error');
-  const status = error?.status || error?.code || 'unknown';
+  const err = typeof error === 'object' && error !== null
+    ? (error as { message?: string; status?: unknown; code?: unknown })
+    : undefined;
+  const message = typeof error === 'string' ? error : (err?.message || 'SSR error');
+  const status = (err?.status as string | number | undefined) ?? (err?.code as string | number | undefined) ?? 'unknown';
   // Prefer console.error for SSR visibility
   // Include endpoint and timestamp for quick diagnostics
   // Avoid throwing to not break ISR

@@ -33,7 +33,8 @@ export default function EnvironmentValidator({ children }: EnvironmentValidatorP
         }
 
         const healthData = await response.json();
-        if (!healthData.ok || !healthData.version || !healthData.time) {
+        const isHealthy = Boolean(healthData.success ?? (healthData.status === 'ok'));
+        if (!isHealthy || !healthData.version || !healthData.time) {
           throw new Error('API health check returned invalid data format');
         }
 

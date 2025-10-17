@@ -121,7 +121,7 @@ export interface User {
 
 export interface PagedUsersResponse {
   users: User[];
-  totalCount: number;
+  total: number;
   page: number;
   pageSize: number;
   totalPages: number;
@@ -135,7 +135,7 @@ export interface UpdateUserStatusRequest {
   isActive: boolean;
 }
 
-const fetcher = (url: string) => apiClient.get(url).then(res => res.data);
+const fetcher = (url: string) => apiClient.get(url);
 
 // Staff Service with SWR hooks
 export const useStaffStats = () => {
@@ -180,9 +180,9 @@ export const useStaffMembers = (page = 1, limit = 10, search?: string, role?: st
   );
 
   return {
-    staff: data?.staff || [],
-    total: data?.total || 0,
-    totalPages: data?.totalPages || 0,
+    staff: data?.staff ?? [],
+    total: data?.total ?? 0,
+    totalPages: data?.totalPages ?? 0,
     isLoading,
     error,
     mutate
@@ -258,9 +258,9 @@ export const useUsers = (page = 1, pageSize = 10, filters?: {
   );
 
   return {
-    users: data?.users || [],
-    totalCount: data?.totalCount || 0,
-    totalPages: data?.totalPages || 0,
+    users: data?.users ?? [],
+    total: data?.total ?? 0,
+    totalPages: data?.totalPages ?? 0,
     isLoading,
     error,
     mutate
@@ -271,9 +271,9 @@ export const useUsers = (page = 1, pageSize = 10, filters?: {
 export const scanQR = async (qrData: QRScanRequest): Promise<QRScanResponse> => {
   try {
     const response = await apiClient.post(API_ENDPOINTS.STAFF.SCAN, qrData);
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al escanear QR';
+    const message = (error?.details?.message ?? error?.message) || 'Error al escanear QR';
     throw new Error(message);
   }
 };
@@ -281,9 +281,9 @@ export const scanQR = async (qrData: QRScanRequest): Promise<QRScanResponse> => 
 export const inviteStaff = async (inviteData: StaffInviteRequest): Promise<StaffInviteResponse> => {
   try {
     const response = await apiClient.post(API_ENDPOINTS.STAFF.INVITE, inviteData);
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al invitar staff';
+    const message = (error?.details?.message ?? error?.message) || 'Error al invitar staff';
     throw new Error(message);
   }
 };
@@ -292,7 +292,7 @@ export const revokeInvitation = async (invitationId: string): Promise<void> => {
   try {
     await apiClient.delete(API_ENDPOINTS.STAFF.REVOKE(invitationId));
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al revocar invitación';
+    const message = (error?.details?.message ?? error?.message) || 'Error al revocar invitación';
     throw new Error(message);
   }
 };
@@ -300,9 +300,9 @@ export const revokeInvitation = async (invitationId: string): Promise<void> => {
 export const updateStaffRole = async (staffId: string, roleData: UpdateRoleRequest): Promise<StaffMember> => {
   try {
     const response = await apiClient.put(API_ENDPOINTS.STAFF.UPDATE_ROLE(staffId), roleData);
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al actualizar rol';
+    const message = (error?.details?.message ?? error?.message) || 'Error al actualizar rol';
     throw new Error(message);
   }
 };
@@ -310,9 +310,9 @@ export const updateStaffRole = async (staffId: string, roleData: UpdateRoleReque
 export const updateStaffStatus = async (staffId: string, statusData: UpdateStatusRequest): Promise<StaffMember> => {
   try {
     const response = await apiClient.put(API_ENDPOINTS.STAFF.UPDATE_STATUS(staffId), statusData);
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al actualizar estado';
+    const message = (error?.details?.message ?? error?.message) || 'Error al actualizar estado';
     throw new Error(message);
   }
 };
@@ -321,9 +321,9 @@ export const updateStaffStatus = async (staffId: string, statusData: UpdateStatu
 export const updateUserRole = async (userId: string, roleData: UpdateUserRoleRequest): Promise<User> => {
   try {
     const response = await apiClient.put(API_ENDPOINTS.USERS.UPDATE(userId), roleData);
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al actualizar rol del usuario';
+    const message = (error?.details?.message ?? error?.message) || 'Error al actualizar rol del usuario';
     throw new Error(message);
   }
 };
@@ -331,9 +331,9 @@ export const updateUserRole = async (userId: string, roleData: UpdateUserRoleReq
 export const updateUserStatus = async (userId: string, statusData: UpdateUserStatusRequest): Promise<User> => {
   try {
     const response = await apiClient.put(API_ENDPOINTS.USERS.UPDATE(userId), statusData);
-    return response.data;
+    return response;
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al actualizar estado del usuario';
+    const message = (error?.details?.message ?? error?.message) || 'Error al actualizar estado del usuario';
     throw new Error(message);
   }
 };
@@ -342,7 +342,7 @@ export const deleteUser = async (userId: string): Promise<void> => {
   try {
     await apiClient.delete(API_ENDPOINTS.USERS.DELETE(userId));
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Error al eliminar usuario';
+    const message = (error?.details?.message ?? error?.message) || 'Error al eliminar usuario';
     throw new Error(message);
   }
 };
