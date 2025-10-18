@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5213'
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://congreso-api.onrender.com'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {

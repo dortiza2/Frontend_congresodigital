@@ -12,7 +12,7 @@ export class ApiError extends Error {
 
 // Usamos una sola variable de entorno consistente: NEXT_PUBLIC_API_URL (cliente)
 // y opcionalmente API_BASE_URL o API_URL en SSR. Construimos BASE apuntando a la raíz del host.
-const API_ROOT = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL;
+const API_ROOT = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL || 'https://congreso-api.onrender.com';
 const BASE = API_ROOT ? API_ROOT.replace(/\/$/, '') : '';
 
 export function validateApiBaseUrl(): string {
@@ -102,14 +102,14 @@ export const apiClient = {
 // Wrappers preferidos para nuevo código: usan rutas relativas `/api/*`
 // y dependen de los rewrites de Next.js en desarrollo/producción.
 export async function apiGet(path: string, init?: RequestInit) {
-  if (!path.startsWith('/')) path = '/' + path;
-  const res = await fetch(`/api${path}`, { credentials: 'include', ...(init || {}) });
+  const url = buildUrl(path);
+  const res = await fetch(url, { credentials: 'include', ...(init || {}) });
   return res;
 }
 
 export async function apiPost(path: string, body: unknown, init?: RequestInit) {
-  if (!path.startsWith('/')) path = '/' + path;
-  const res = await fetch(`/api${path}`, {
+  const url = buildUrl(path);
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
     credentials: 'include',
@@ -120,8 +120,8 @@ export async function apiPost(path: string, body: unknown, init?: RequestInit) {
 }
 
 export async function apiPut(path: string, body: unknown, init?: RequestInit) {
-  if (!path.startsWith('/')) path = '/' + path;
-  const res = await fetch(`/api${path}`, {
+  const url = buildUrl(path);
+  const res = await fetch(url, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
     credentials: 'include',
@@ -132,8 +132,8 @@ export async function apiPut(path: string, body: unknown, init?: RequestInit) {
 }
 
 export async function apiDelete(path: string, init?: RequestInit) {
-  if (!path.startsWith('/')) path = '/' + path;
-  const res = await fetch(`/api${path}`, {
+  const url = buildUrl(path);
+  const res = await fetch(url, {
     method: 'DELETE',
     credentials: 'include',
     ...(init || {}),
