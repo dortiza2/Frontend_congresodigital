@@ -99,9 +99,10 @@ export async function middleware(request: NextRequest) {
 
   try {
     // Obtener token de NextAuth
+    const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET_KEY;
     const token = await getToken({
       req: request,
-      secret: process.env.NEXTAUTH_SECRET,
+      secret: NEXTAUTH_SECRET,
     });
 
     const roleLevel = getUserRoleLevel(token);

@@ -72,7 +72,7 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET_KEY,
   callbacks: {
     async signIn({ user, account, profile }) {
       // Para login con credenciales, ya está autenticado por el provider
@@ -82,7 +82,8 @@ export const authOptions: NextAuthOptions = {
 
       // Para Google OAuth, validar dominios permitidos
       if (account?.provider === 'google') {
-        const allowedDomains = process.env.GOOGLE_ALLOWED_DOMAINS?.split(',') || ['miumg.edu.gt'];
+        const allowedDomainsEnv = process.env.NEXT_PUBLIC_ALLOWED_DOMAINS || process.env.NEXT_PUBLIC_GOOGLE_ALLOWED_DOMAINS || process.env.GOOGLE_ALLOWED_DOMAINS;
+        const allowedDomains = (allowedDomainsEnv?.split(',') || ['umg.edu.gt','miumg.edu.gt']).map(d => d.trim()).filter(Boolean);
         const userDomain = user.email?.split('@')[1];
         
         if (!user.email || !userDomain || !allowedDomains.includes(userDomain)) {
@@ -189,7 +190,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production', // true en producción, false en desarrollo
+        secure: process.env.NODE_ENV === 'production',
       },
     },
     callbackUrl: {

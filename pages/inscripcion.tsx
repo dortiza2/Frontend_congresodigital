@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/useToast';
 import { getUserFriendlyErrorMessage } from '@/lib/errorHandler';
 import { ApiError, api } from '@/lib/api';
 import { formatGT, formatGTTime } from '@/lib/datetime';
+import { APP_CONFIG } from '@/lib/appConfig';
 
 // Toggle de Google: deshabilita el botón si NEXT_PUBLIC_ENABLE_GOOGLE es 'false'
 const enableGoogle = (process.env.NEXT_PUBLIC_ENABLE_GOOGLE ?? 'true') !== 'false';
@@ -102,9 +103,11 @@ export default function InscripcionPage() {
   const [loggingInGoogle, setLoggingInGoogle] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string>('');
   
-  // Dominios permitidos para Google (desde env)
-  const allowedDomainsEnv = process.env.NEXT_PUBLIC_GOOGLE_ALLOWED_DOMAINS || process.env.GOOGLE_ALLOWED_DOMAINS;
-  const allowedDomains = (allowedDomainsEnv?.split(',') || ['umg.edu.gt','miumg.edu.gt']).map(d => d.trim()).filter(Boolean);
+  // Dominios permitidos para Google (desde configuración central)
+  const allowedDomains = (APP_CONFIG.VALIDATION.ALLOWED_DOMAINS.length > 0
+    ? APP_CONFIG.VALIDATION.ALLOWED_DOMAINS
+    : ['umg.edu.gt','miumg.edu.gt']
+  ).map(d => d.trim());
   const allowedDomainsText = allowedDomains.map(d => `@${d}`).join(', ');
   
   // Filtros

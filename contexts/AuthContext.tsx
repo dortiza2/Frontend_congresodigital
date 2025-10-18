@@ -6,12 +6,11 @@ import { getUser, isLoggedIn, getUserRoles, clearSession, getToken } from '@/lib
 import type { User, AuthContextType } from '@/types/auth';
 import { useRouter } from 'next/router';
 import { apiClient } from '@/lib/api';
+import { ConfigUtils, APP_CONFIG } from '@/lib/appConfig';
 
 // Helper para validar dominios permitidos
 const isAllowedDomain = (email: string): boolean => {
-  const allowedDomains = ['umg.edu.gt', 'miumg.edu.gt'];
-  const domain = email.split('@')[1];
-  return allowedDomains.includes(domain);
+  return ConfigUtils.isDomainAllowed(email);
 };
 
 // Crear el contexto
@@ -164,7 +163,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // Validar dominio antes de proceder
       if (!isAllowedDomain(email)) {
-        throw new Error('Solo se permiten correos institucionales @umg.edu.gt o @miumg.edu.gt');
+        throw new Error('Solo se permiten correos de dominios permitidos.');
       }
       
       // Para Google login, crear usuario con roles desde JWT si existe
@@ -173,8 +172,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         name: email.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
         email,
         organization: 'Universidad Mariano Gálvez',
-        roles: ['student'], // Por defecto, estudiante para correos UMG
-        roleLevel: 3 // Student level por defecto
+        roles: ['student'], // Por defecto, estudiante para correos institucionales
+        roleLevel: 0 // Student level por defecto
       };
       
       // Guardar en localStorage para compatibilidad
@@ -216,7 +215,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         window.location.href = '/';
       }
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('Error durante logout:', error);
       // Forzar logout local aunque falle el servidor
       clearSession();
       setUser(null);
@@ -251,45 +250,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 }
 
-// Hook para usar el contexto de autenticación
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
-  
-  if (context === undefined) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  
   return context;
 }
 
-// Hook para verificar si el usuario está autenticado
 export function useRequireAuth(): User {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    throw new Error('Cargando autenticación...');
-  }
-  
+  const { user } = useAuth();
   if (!user) {
-    throw new Error('Usuario no autenticado');
+    throw new Error('User is not authenticated');
   }
-  
   return user;
 }
 
-// Hook para verificar roles específicos
 export function useHasRole(role: string): boolean {
   const { user } = useAuth();
-  return user?.roles?.includes(role) ?? false;
+  return (user?.roles || []).includes(role);
 }
 
-// Hook para verificar si es estudiante institucional (UMG o MIUMG)
 export function useIsInstitutionalStudent(): boolean {
   const { user } = useAuth();
-  return user?.email ? isAllowedDomain(user.email) : false;
+  if (!user?.email) return false;
+  return isAllowedDomain(user.email);
 }
 
-// Mantener compatibilidad con el hook anterior
 export function useIsUMGStudent(): boolean {
-  return useIsInstitutionalStudent();
+  const { user } = useAuth();
+  if (!user?.email) return false;
+  const domain = user.email.split('@')[1];
+  return domain === (APP_CONFIG.ORGANIZATION.DOMAIN || 'umg.edu.gt');
 }
