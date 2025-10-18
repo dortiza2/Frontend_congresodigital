@@ -1,173 +1,177 @@
 # Frontend Congreso Digital
 
-Aplicación frontend para el Congreso Tecnológico - Sistema de gestión de congresos con portal administrativo, escaneo QR y gestión de actividades.
+Aplicación web del Congreso Digital UMG construida con Next.js. Incluye landing pública, portal de estudiantes, área administrativa, autenticación (credenciales y Google), escaneo QR de asistencia y certificados.
 
 ## 🚀 Tecnologías
 
-- **Framework**: Next.js 15.4.5
-- **UI Library**: React 19.1.1
-- **Styling**: TailwindCSS 4
-- **Authentication**: NextAuth.js 4.24.11
-- **Language**: TypeScript 5
-- **Deployment**: Vercel
+- Framework: `Next.js 15.4.5` (Pages Router)
+- UI: `React 19.1.1` + Radix UI + componentes base tipo shadcn
+- Estilos: `TailwindCSS 4`
+- Autenticación: `NextAuth.js 4.24.11` (JWT strategy)
+- Lenguaje: `TypeScript 5`
+- Data fetching: `SWR`
+- Gráficas: `ApexCharts`
+- Deploy: `Vercel`
 
-## 📋 Requisitos Previos
+## 🧩 Características
 
-- Node.js 18+ 
-- npm o yarn
-- Cuenta en Vercel (para deployment)
-
-## 🛠️ Instalación Local
-
-### 1. Clonar el Repositorio
-```bash
-git clone https://github.com/dortiza2/Frontend_congresodigital.git
-cd Frontend_congresodigital
-```
-
-### 2. Instalar Dependencias
-```bash
-npm install
-```
-
-### 3. Configurar Variables de Entorno
-Copiar el archivo de ejemplo y configurar las variables:
-```bash
-cp .env.production.example .env.local
-```
-
-Editar `.env.local` con tus valores:
-```
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=tu-secreto-jwt
-DATABASE_URL=tu-url-base-datos
-API_URL=tu-url-api-backend
-```
-
-### 4. Ejecutar en Desarrollo
-```bash
-npm run dev
-```
-
-La aplicación estará disponible en: [http://localhost:3000](http://localhost:3000)
-
-## 📦 Scripts Disponibles
-
-| Script | Descripción |
-|--------|-------------|
-| `npm run dev` | Inicia servidor de desarrollo |
-| `npm run build` | Construye para producción |
-| `npm start` | Inicia servidor de producción |
-| `npm run lint` | Ejecuta linter |
-| `npm run lint:images` | Valida assets públicos |
-
-## 🚀 Deployment en Vercel
-
-### Opción 1: Deployment Automático
-1. Conectar repositorio GitHub a Vercel
-2. Vercel detectará automáticamente Next.js
-3. Configurar variables de entorno en dashboard de Vercel
-4. Cada push a `main` desplegará automáticamente
-
-### Opción 2: Deployment Manual
-```bash
-# Construir para producción
-npm run build
-
-# Instalar Vercel CLI
-npm i -g vercel
-
-# Desplegar
-vercel --prod
-```
-
-### Configuración de Vercel
-El proyecto incluye `vercel.json` con configuración optimizada:
-```json
-{
-  "version": 2,
-  "builds": [
-    { "src": "package.json", "use": "@vercel/next" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
-}
-```
+- Landing: hero, agenda, expositores, patrocinadores, FAQs y más
+- Portal estudiantil: perfil, QR para asistencia, diplomas/certificados
+- Panel administrativo: gestión de actividades, categorías, usuarios, speakers, asistencia
+- Staff: escaneo QR y control de asistencia
+- Autenticación: credenciales contra backend + Google OAuth con dominios permitidos
+- Proxy de API: todas las rutas `/api/*` se redirigen al backend definido por variable de entorno
 
 ## 📁 Estructura del Proyecto
 
 ```
 Frontend_congresodigital/
-├── components/          # Componentes React
-│   ├── admin/          # Componentes de administrador
-│   ├── auth/           # Componentes de autenticación
-│   ├── portal/         # Componentes del portal estudiantil
-│   └── ui/             # Componentes UI reutilizables
-├── contexts/           # Contextos de React
-├── data/               # Datos estáticos
-├── hooks/              # Hooks personalizados
-├── lib/                # Utilidades y servicios
-├── pages/              # Páginas de Next.js
-│   ├── admin/          # Páginas administrativas
-│   ├── api/            # Endpoints API
-│   ├── portal/         # Páginas del portal
-│   └── staff/          # Páginas de staff
-├── public/             # Assets estáticos
-├── scripts/            # Scripts de build
-├── services/           # Servicios API
-├── styles/             # Estilos CSS
-└── types/              # Definiciones TypeScript
+├── components/          # Componentes React (admin/, portal/, ui/)
+├── contexts/            # Contextos (AuthContext, ToastContext)
+├── hooks/               # Hooks personalizados (SWR, UI state)
+├── lib/                 # Cliente API, configuración, utilidades
+├── pages/               # Pages Router (páginas y API routes)
+│   ├── api/             # Endpoints proxy/unificados (faq, podium, etc.)
+│   └── api/auth/        # NextAuth y helpers de sesión
+├── public/              # Assets estáticos (avatars, imágenes)
+├── services/            # Servicios de dominio (activities, speakers, profile)
+├── styles/              # Estilos globales
+└── types/               # Tipos TypeScript
 ```
 
-## 🔧 Características Principales
+## 📋 Requisitos Previos
 
-- **Landing Page**: Hero, agenda, expositores, patrocinadores
-- **Portal Administrativo**: Gestión de actividades, usuarios, asistencia
-- **Portal Estudiantil**: Inscripciones, asistencia QR, certificados
-- **Escaneo QR**: Sistema de asistencia por código QR
-- **Autenticación**: Sistema de roles y permisos
-- **Diseño Responsivo**: Optimizado para móviles
+- Node.js 18+
+- npm (recomendado; se usa `package-lock.json`)
+- Cuenta en Vercel (si vas a desplegar)
 
-## 🔐 Variables de Entorno
+## ⚙️ Configuración Local Rápida
 
-| Variable | Descripción | Ejemplo |
-|----------|-------------|---------|
-| `NEXTAUTH_URL` | URL de la aplicación | `https://tudominio.com` |
-| `NEXTAUTH_SECRET` | Secreto JWT | `tu-secreto-seguro` |
-| `DATABASE_URL` | URL base de datos | `postgresql://...` |
-| `API_URL` | URL del backend API | `https://api.tudominio.com` |
-
-## 🧪 Testing
-
+1) Clonar e instalar dependencias
 ```bash
-# Ejecutar tests de accesibilidad
-npm run a11y:check
+git clone https://github.com/dortiza2/Frontend_congresodigital.git
+cd Frontend_congresodigital
+npm install
 ```
 
-## 📱 Optimización Móvil
+2) Crear `.env.local` (mínimo)
+```
+# URL del frontend
+NEXTAUTH_URL=http://localhost:3000
 
-- Diseño mobile-first
-- Touch interactions optimizadas
-- Carga progresiva de imágenes
-- PWA compatible
+# Secreto para NextAuth (usa uno fuerte)
+NEXTAUTH_SECRET=pon_aqui_un_secreto_fuerte
 
-## 🤝 Contribuir
+# Base del backend (local o remoto)
+# Para backend local: http://127.0.0.1:5213
+# Para backend remoto: https://congreso-api.onrender.com
+NEXT_PUBLIC_API_URL=https://congreso-api.onrender.com
 
-1. Fork el proyecto
-2. Crear feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add AmazingFeature'`)
-4. Push al branch (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
+# OAuth Google (opcional, si quieres probar Google login)
+# Si se configuran, el provider se habilita automáticamente
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Dominios permitidos para Google (coma-separados)
+NEXT_PUBLIC_ALLOWED_DOMAINS=umg.edu.gt,miumg.edu.gt
+
+# Deshabilitar Google si fuera necesario
+# NEXT_PUBLIC_ENABLE_GOOGLE=false
+
+# Otros opcionales usados por la UI
+NEXT_PUBLIC_CONGRESS_EDITION=2025
+NEXT_PUBLIC_CONTACT_EMAIL=congreso@umg.edu.gt
+NEXT_PUBLIC_SUPPORT_EMAIL=soporte@umg.edu.gt
+
+# En SSR se respetan API_BASE_URL o API_URL si deseas declararlas
+# API_BASE_URL=
+# API_URL=
+```
+
+3) Ejecutar en desarrollo
+```bash
+npm run dev
+```
+Abre http://localhost:3000
+
+Consejo: si usas backend local en `:5213`, está habilitado en `images.remotePatterns` para servir imágenes.
+
+## 🔐 Autenticación y Acceso
+
+- Proveedores: `Credentials` (contra backend) y `Google` (si hay credenciales y no está deshabilitado)
+- Dominios permitidos para Google: `NEXT_PUBLIC_ALLOWED_DOMAINS` (por defecto acepta dominios de UMG)
+- Rutas NextAuth: `/api/auth/*` (página de login y error: `/inscripcion`)
+- Estrategia de sesión: JWT
+- Middleware protege rutas (`middleware.ts`) según roles y niveles
+
+## 🌐 API y Proxys
+
+- Base del backend: `NEXT_PUBLIC_API_URL` (cliente) y opcionalmente `API_BASE_URL`/`API_URL` (SSR)
+- Cliente API: `lib/api.ts`
+  - En el navegador usa rutas relativas (`/api/*`) y aprovecha `rewrites` de Next.js
+  - En SSR usa base absoluta hacia el backend
+  - Wrappers seguros: `safeGet`, `safePost`, `safePut`, `safeDelete`
+- Rewrites (`next.config.js`):
+  - `beforeFiles`: proxy directo para `/api/auth/register` y `/api/auth/login`
+  - `fallback`: redirige `/api/:path*` a `${NEXT_PUBLIC_API_URL}/api/:path*`
+  - Se evita interferir con rutas propias de NextAuth
+
+## 🧪 Scripts
+
+| Script | Descripción |
+|---|---|
+| `npm run dev` | Inicia servidor de desarrollo |
+| `npm run build` | Compila para producción |
+| `npm start` | Arranca en modo producción |
+| `npm run lint` | Linter de Next.js |
+| `npm run lint:images` | Valida assets públicos (nombres y tamaños) |
+| `npm run a11y:check` | Revisión de accesibilidad con Playwright + axe |
+
+## 🚀 Despliegue en Vercel
+
+- Zero‑Config para Next.js. `vercel.json` mínimo:
+```json
+{
+  "version": 2
+}
+```
+- Define las variables en el Dashboard (Production, y opcionalmente Preview):
+  - Requeridas: `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `NEXT_PUBLIC_API_URL`
+  - Opcionales: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_ALLOWED_DOMAINS`, `NEXT_PUBLIC_ENABLE_GOOGLE`, `NEXT_PUBLIC_CONGRESS_EDITION`, `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_SUPPORT_EMAIL`, `API_BASE_URL`/`API_URL`
+- Nota: si ves el warning `unused-build-settings`, quita `builds` de `vercel.json` (ya está resuelto en este repo).
+
+## ✅ Healthchecks y Verificación
+
+- `GET /api/health` → `{ success: true, status: 'ok', ... }`
+- `GET /api/auth/session` → 200 con o sin sesión (si devuelve 500, revisa variables NextAuth)
+- Endpoints proxied:
+  - `GET /api/faq`
+  - `GET /api/podium?year=2025`
+  - `GET /api/activities`
+
+## 🧭 Rutas Clave
+
+- Públicas: `/`, `/inscripcion`, `/faq`, `/actividades`, `/agenda`, `/podio`
+- Requieren sesión: `/portal`, `/mi-cuenta`, `/portal/qr`, `/portal/diplomas`
+- Staff/Admin: `/staff`, `/dashboard`, `/admin/*`
+
+## 🐞 Troubleshooting
+
+- `[CLIENT_FETCH_ERROR]` en NextAuth
+  - Causa común: falta `NEXTAUTH_URL` o `NEXTAUTH_SECRET`, o backend inaccesible
+  - Verifica que `NEXT_PUBLIC_API_URL` apunte a un host válido (no `localhost` en producción)
+- `unused-build-settings` (Vercel)
+  - Sucede si `vercel.json` define `builds`; ya eliminado en este repo
+- Múltiples lockfiles
+  - Usa `npm` y elimina `yarn.lock` si aparece para evitar advertencias
+- OAuth Google
+  - Asegura `NEXTAUTH_URL` correcto por entorno (Preview/Production) y URIs en consola de Google
+
+## 📬 Contacto y soporte
+
+- Contacto: `${NEXT_PUBLIC_CONTACT_EMAIL}`
+- Soporte: `${NEXT_PUBLIC_SUPPORT_EMAIL}`
 
 ## 📝 Licencia
 
-Este proyecto es propiedad privada.
-
-## 📞 Soporte
-
-Para soporte técnico, contactar al equipo de desarrollo.
-
----
-
-**Nota**: Este proyecto fue generado con Next.js y está optimizado para deployment en Vercel.
+Proyecto privado del equipo del Congreso Digital UMG.
