@@ -248,12 +248,22 @@ export default function InscripcionPage() {
         // Login exitoso con NextAuth (backend o fallback)
         setSuccessMessage('Sesión iniciada correctamente');
         
-        // Redirección: dejar que el middleware enrute según roleLevel
+        // Intentar redirección inteligente según sesión de NextAuth
         const nextUrl = router.query.next as string;
-        if (nextUrl) {
-          const finalRedirect = getRedirectPath(nextUrl);
-          router.replace(finalRedirect);
-        } else {
+        try {
+          const { getSession } = await import('next-auth/react');
+          const session = await getSession();
+          const roleLevel = (session?.user as any)?.roleLevel ?? 0;
+          
+          if (nextUrl) {
+            const finalRedirect = getRedirectPath(nextUrl);
+            router.replace(finalRedirect);
+          } else {
+            const redirectTo = roleLevel >= 1 ? '/dashboard' : '/mi-cuenta';
+            router.replace(redirectTo);
+          }
+        } catch (e) {
+          // Fallback al home si algo falla al obtener la sesión
           router.replace('/');
         }
       } else if (result && (result as { error?: string }).error) {

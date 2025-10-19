@@ -114,6 +114,12 @@ export async function middleware(request: NextRequest) {
       console.log(`[Middleware] ${pathname} - Auth: ${isAuthenticated}, Role: ${roleLevel}`);
     }
 
+    // Redirección inteligente en la raíz: si está autenticado, mandar a su dashboard
+    if (pathname === '/' && isAuthenticated) {
+      const redirectTo = getRedirectByRole(roleLevel);
+      return NextResponse.redirect(new URL(redirectTo, request.url));
+    }
+
     // Rutas públicas - permitir acceso
     if (isPublicRoute(pathname)) {
       return NextResponse.next();

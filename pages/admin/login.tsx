@@ -5,10 +5,11 @@ import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Eye, EyeOff, Shield, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { signIn, getSession } from 'next-auth/react';
 
 export default function AdminLogin() {
   const router = useRouter();
-  const { user, loginEmail, loading } = useAuth();
+  const { user, loading } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -20,13 +21,9 @@ export default function AdminLogin() {
   // Redirigir si ya está autenticado
   useEffect(() => {
     if (user && !loading) {
-      // Redirigir según el roleLevel del usuario
       const roleLevel = user.roleLevel || 0;
-    if (roleLevel >= 2) {
-        router.replace('/dashboard');
-      } else {
-        router.replace('/portal');
-      }
+      const redirectTo = roleLevel >= 1 ? '/dashboard' : '/mi-cuenta';
+      router.replace(redirectTo);
     }
   }, [user, loading, router]);
 
@@ -36,159 +33,111 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const user = await loginEmail(formData.email, formData.password);
-      
-      if (user) {
-        // Redirigir según el roleLevel
-        const roleLevel = user.roleLevel || 0;
-    if (roleLevel >= 2) {
-          router.replace('/dashboard');
-        } else {
-          router.replace('/portal');
-        }
+      // Usar NextAuth credentials para permitir backend real o fallback mock
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+        callbackUrl: '/'
+      });
+
+      if (result && (result as { ok?: boolean }).ok) {
+        // Obtener la sesión para decidir la redirección por rol
+        const session = await getSession();
+        const roleLevel = (session?.user as any)?.roleLevel || 0;
+        const redirectTo = roleLevel >= 1 ? '/dashboard' : '/mi-cuenta';
+        router.replace(redirectTo);
+      } else if ((result as any)?.error) {
+        setError('Credenciales inválidas o acceso denegado');
       }
     } catch (err: any) {
       console.error('Error en login:', err);
-      setError(err.message || 'Error al iniciar sesión');
+      setError(err?.message || 'Error al iniciar sesión');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Mostrar loading si está verificando autenticación
-  if (loading) {
-    return (
-      <div className="relative min-h-screen flex items-center justify-center bg-congreso">
-        <div className="overlay-soft pointer-events-none" />
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 relative z-10"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="relative min-h-screen bg-congreso flex items-center justify-center px-4">
-      <div className="overlay-soft pointer-events-none" />
-      <div className="max-w-md w-full space-y-8 relative z-10">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-            <Shield className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <div className="flex items-center justify-center space-x-2">
+            <Shield className="h-10 w-10 text-indigo-600" />
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Acceso Staff
+            </h2>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900/90 tracking-tight">
-            Acceso al Dashboard
-          </h2>
-          <p className="mt-2 text-slate-700/90">
-            Ingresa con tu cuenta de staff para acceder al panel de administración
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Ingresa con tu correo y contraseña para acceder al dashboard
           </p>
+          <div className="mt-4 text-center">
+            <Link href="/inscripcion" className="inline-flex items-center text-indigo-600 hover:text-indigo-500">
+              <ArrowLeft className="h-4 w-4 mr-1" /> Volver a inicio de sesión
+            </Link>
+          </div>
         </div>
 
-        {/* Formulario */}
-        <div className="rounded-2xl border border-black/10 bg-white/70 backdrop-blur-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Correo Electrónico
-              </label>
+              <label htmlFor="email-address" className="sr-only">Correo</label>
               <input
-                id="email"
+                id="email-address"
                 name="email"
                 type="email"
+                autoComplete="email"
                 required
                 value={formData.email}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="tu.email@umg.edu.gt"
-                disabled={isLoading}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Correo"
               />
             </div>
+            <div className="relative">
+              <label htmlFor="password" className="sr-only">Contraseña</label>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Contraseña"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700"
+                aria-label="Mostrar/Ocultar contraseña"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
 
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Tu contraseña"
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  disabled={isLoading}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+          {error && (
+            <div className="rounded-md bg-red-50 p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
-
-            {/* Submit Button */}
+          <div>
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center px-4 py-3 rounded-xl text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Iniciando sesión...
-                </div>
-              ) : (
-                'Acceder al Dashboard'
-              )}
+              {isLoading ? 'Ingresando...' : 'Ingresar'}
             </button>
-          </form>
-
-          {/* Links */}
-          <div className="mt-6 space-y-3">
-            <div className="text-center">
-              <Link 
-                href="/inscripcion" 
-                className="text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200"
-              >
-                ¿Eres estudiante? Regístrate aquí
-              </Link>
-            </div>
-            
-            <div className="text-center">
-              <Link 
-                href="/" 
-                className="inline-flex items-center text-sm text-gray-600 hover:text-gray-500 transition-colors duration-200"
-              >
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                Volver al inicio
-              </Link>
-            </div>
           </div>
-        </div>
+        </form>
 
         {/* Info adicional */}
         <div className="text-center">
@@ -214,14 +163,14 @@ export const getServerSideProps = async (ctx: any) => {
     if (session && session.user) {
       const roleLevel = session.user.roleLevel || 0;
       
-      if (roleLevel >= 2) {
+      if (roleLevel >= 1) {
         return {
           redirect: {
             destination: '/dashboard',
             permanent: false,
           },
         };
-      } else if (roleLevel >= 1) {
+      } else {
         return {
           redirect: {
             destination: '/mi-cuenta',
