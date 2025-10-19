@@ -236,30 +236,33 @@ export default function InscripcionPage() {
       setLoginErrors({});
       setSuccessMessage('');
       
-      const result = await login(loginForm.email, loginForm.password);
+      // Usar NextAuth credentials para permitir fallback mock si el backend falla
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: loginForm.email,
+        password: loginForm.password,
+        callbackUrl: '/'
+      });
       
-      if (result.token) {
-        // Mostrar mensaje de éxito
+      if (result && (result as { ok?: boolean }).ok) {
+        // Login exitoso con NextAuth (backend o fallback)
         setSuccessMessage('Sesión iniciada correctamente');
         
-        // Actualizar AuthContext con los datos del usuario
-        await loginEmail(loginForm.email, loginForm.password);
-        
-        // Usar la nueva función handleLoginSuccess para routing inteligente
+        // Redirección: dejar que el middleware enrute según roleLevel
         const nextUrl = router.query.next as string;
-        
-        console.log('[Login] Using handleLoginSuccess for routing');
-        
-        // Redirección inmediata para evitar parpadeo
-        setSuccessMessage('');
-        await handleLoginSuccess(router, nextUrl);
-      }
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('401')) {
+        if (nextUrl) {
+          const finalRedirect = getRedirectPath(nextUrl);
+          router.replace(finalRedirect);
+        } else {
+          router.replace('/');
+        }
+      } else if (result && (result as { error?: string }).error) {
         setLoginErrors({ general: 'Correo o contraseña incorrectos' });
       } else {
         setLoginErrors({ general: 'Error de autenticación' });
       }
+    } catch (error) {
+      setLoginErrors({ general: 'Error de autenticación' });
     } finally {
       setLoggingIn(false);
     }

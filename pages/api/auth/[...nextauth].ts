@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // Intentar autenticar contra el backend real primero
         try {
           const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || process.env.API_URL || 'https://congreso-api.onrender.com';
           const response = await fetch(`${backendUrl}/api/auth/login`, {
@@ -66,6 +67,43 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('Error al autenticar con backend:', error);
+        }
+
+        // Fallback: cuentas mock para desarrollo/urgencia cuando el backend no responde
+        const email = credentials.email.toLowerCase();
+        const password = credentials.password;
+        const DEBUG_PASSWORD = process.env.NEXT_PUBLIC_DEBUG_PASSWORD || 'Test.1234';
+
+        const MOCK_ACCOUNTS: Record<string, { name: string; roleLevel: number; roles: string[]; organization?: string }> = {
+          'user1@congreso.com': { name: 'Usuario 1', roleLevel: 0, roles: ['Student'], organization: 'Universidad Mariano Gálvez' },
+          'user2@congreso.com': { name: 'Usuario 2', roleLevel: 0, roles: ['Student'], organization: 'Universidad Mariano Gálvez' },
+          'user3@congreso.com': { name: 'Usuario 3', roleLevel: 0, roles: ['Student'], organization: 'Universidad Mariano Gálvez' },
+          'staff1@congreso.com': { name: 'Staff 1', roleLevel: 1, roles: ['Asistente'], organization: 'Universidad Mariano Gálvez' },
+          'admin1@congreso.com': { name: 'Admin 1', roleLevel: 2, roles: ['Admin'], organization: 'Universidad Mariano Gálvez' },
+          'superadmin1@congreso.com': { name: 'SuperAdmin 1', roleLevel: 3, roles: ['MGADMIN'], organization: 'Universidad Mariano Gálvez' },
+        };
+
+        const mock = MOCK_ACCOUNTS[email];
+        if (mock && password === DEBUG_PASSWORD) {
+          const id = `mock-${Buffer.from(email).toString('base64').replace(/=+/g, '')}`;
+          const backendData = {
+            token: 'mock-token',
+            user: {
+              id,
+              email,
+              FullName: mock.name,
+              organization: mock.organization,
+              roles: mock.roles,
+              roleLevel: mock.roleLevel
+            }
+          };
+
+          return {
+            id,
+            email,
+            name: mock.name,
+            backendData
+          }
         }
 
         return null
