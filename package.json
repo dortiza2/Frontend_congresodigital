@@ -36,7 +36,8 @@
     "react-dom": "^19.1.1",
     "sonner": "^1.7.1",
     "swr": "^2.2.5",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "lightningcss": "^1.26.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.1",
