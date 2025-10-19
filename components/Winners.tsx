@@ -12,8 +12,7 @@ import {
 } from "@/components/ui/card";
 
 import { ChevronDown, ChevronUp, Trophy, Medal, Award, Star, Sparkles } from "lucide-react";
-import { getPodiumByYear } from '@/services/podium';
-import { getActivities } from '@/services/activities';
+import { getMockPodiumByYear, mockActivities } from '@/data/podiumMock';
 import type { Winner, ActivityCard } from '@/types/content';
 import Link from 'next/link';
 
@@ -31,37 +30,40 @@ export const Winners = () => {
   const [hasCurrentEdition, setHasCurrentEdition] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchWinners = async () => {
+    const fetchWinners = () => {
       try {
-        const [winners, activities] = await Promise.all([
-          getPodiumByYear(currentYear),
-          getActivities()
-        ]);
+        const winners = getMockPodiumByYear(currentYear);
+        const activities = mockActivities;
 
         // Agrupar ganadores por actividad
         const grouped = activities
           .map(activity => {
+            const activityTitleNorm = (activity.title || '').trim().toLowerCase();
             const activityWinners = winners
-              .filter(winner => winner.activityId === activity.id)
+              .filter(winner => {
+                const matchById = !!winner.activityId && winner.activityId === activity.id;
+                const matchByTitle = !!winner.activityTitle && winner.activityTitle.trim().toLowerCase() === activityTitleNorm;
+                return matchById || matchByTitle;
+              })
               .sort((a, b) => a.place - b.place); // Ordenar por lugar (1°, 2°, 3°)
             
             return activityWinners.length > 0 ? {
               activity: {
                 id: activity.id,
                 title: activity.title,
-                imageUrl: '/images/default-activity.jpg',
-                short: activity.kind,
-                description: `Actividad de tipo ${activity.kind}`,
-                link: '#'
+                imageUrl: activity.imageUrl || '/images/default-activity.jpg',
+                short: activity.short ?? 'competencia',
+                description: activity.description ?? 'Actividad de tipo competencia',
+                link: activity.link ?? '#'
               },
               winners: activityWinners.map(winner => ({
-                id: `${winner.activityId}-${winner.place}`,
+                id: `${winner.activityId || activity.id || activity.title}-${winner.place}`,
                 year: winner.year,
                 activityId: winner.activityId,
                 place: winner.place as 1 | 2 | 3,
                 projectName: winner.winnerName || winner.prizeDescription || 'Proyecto sin nombre',
                 projectShort: winner.prizeDescription || 'Sin descripción',
-                photoUrl: '/images/default-winner.jpg',
+                photoUrl: winner.teamImage || '/images/default-winner.jpg',
               }))
             } : null;
           })
@@ -70,8 +72,7 @@ export const Winners = () => {
         setWinnersByActivity(grouped);
         setHasCurrentEdition(grouped.length > 0);
       } catch (error) {
-        console.error('Error fetching winners:', error);
-        // En caso de error, mostrar mensaje pero no fallar completamente
+        console.error('Error building winners from mock:', error);
         setWinnersByActivity([]);
         setHasCurrentEdition(false);
       } finally {
@@ -132,7 +133,7 @@ export const Winners = () => {
       className="py-24 sm:py-32"
     >
       <h2 className="text-3xl md:text-4xl font-bold text-center">
-        Ganadores Congreso 2025
+        Ganadores Congreso {currentYear}
       </h2>
       <h3 className="text-xl text-center text-muted-foreground pt-4 pb-8">
         Conoce a los ganadores de las principales actividades del congreso

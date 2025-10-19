@@ -6,6 +6,7 @@ import { useState } from "react";
 export const Congress = () => {
   const [heroError, setHeroError] = useState(false);
   const sources = [
+    "/uploads/congress/hero.jpg",
     "/images/hero/Imagen1_bienvenida.png",
     "/images/Imagen1_bienvenida.png",
     "/Imagen2_bienvenida.png",

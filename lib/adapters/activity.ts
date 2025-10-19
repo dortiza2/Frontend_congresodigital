@@ -26,6 +26,14 @@ export interface RawActivityData {
   instructor?: string;
   // Optional relation to a speaker
   speakerId?: string;
+  // En algunos DTOs (backend) viene como objeto anidado
+  speaker?: {
+    id?: string | number;
+    name?: string;
+    roleTitle?: string;
+    company?: string;
+    avatarUrl?: string;
+  };
   requirements?: string[];
 }
 
@@ -51,109 +59,44 @@ export interface PublicActivity {
   requirements: string[] | null;
 }
 
-/**
- * Convierte un valor a string de forma segura
- */
-function toSafeString(value: any, defaultValue: string = ''): string {
-  if (value === null || value === undefined) return defaultValue;
-  return String(value);
+function toSafeString(value: unknown, fallback: string = ''): string {
+  if (value === undefined || value === null) return fallback;
+  try { return String(value); } catch { return fallback; }
 }
 
-/**
- * Convierte un valor a número de forma segura
- */
-function toSafeNumber(value: any, defaultValue: number = 0): number {
-  if (value === null || value === undefined) return defaultValue;
-  const num = Number(value);
-  return isNaN(num) ? defaultValue : num;
+function toSafeNumber(value: unknown, fallback: number = 0): number {
+  if (value === undefined || value === null) return fallback;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
 }
 
-/**
- * Convierte un valor a boolean de forma segura
- */
-function toSafeBoolean(value: any, defaultValue: boolean = false): boolean {
-  if (value === null || value === undefined) return defaultValue;
+function toSafeBoolean(value: unknown, fallback: boolean = true): boolean {
+  if (value === undefined || value === null) return fallback;
   if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') {
-    return value.toLowerCase() === 'true' || value === '1';
-  }
-  if (typeof value === 'number') return value !== 0;
-  return defaultValue;
+  const s = String(value).toLowerCase();
+  if (s === 'true') return true;
+  if (s === 'false') return false;
+  return fallback;
 }
 
-/**
- * Normaliza el tipo/kind de actividad
- */
 function normalizeActivityKind(raw: RawActivityData): string {
-  // Priorizar activity_type sobre type
-  const kind = raw.activity_type || raw.type;
-  
-  if (!kind) return 'ACTIVIDAD';
-  
-  const kindStr = toSafeString(kind).toLowerCase().trim();
-  
-  // Mapear tipos conocidos
-  switch (kindStr) {
-    case 'taller':
-    case 'workshop':
-      return 'taller';
-    case 'competencia':
-    case 'competition':
-      return 'competencia';
-    case 'conferencia':
-    case 'conference':
-    case 'charla':
-    case 'talk':
-      return 'conferencia';
-    default:
-      return kindStr || 'ACTIVIDAD';
-  }
+  const type = (raw.activity_type ?? raw.type ?? '').toLowerCase();
+  if (type.includes('taller') || type.includes('workshop')) return 'taller';
+  if (type.includes('competencia') || type.includes('competition')) return 'competencia';
+  if (type.includes('charla') || type.includes('talk')) return 'charla';
+  return 'actividad';
 }
 
-/**
- * Normaliza la fecha/hora a formato ISO
- */
-function normalizeDateTime(raw: RawActivityData, field: 'start' | 'end'): string {
-  let dateValue: string | undefined;
-  
-  if (field === 'start') {
-    dateValue = raw.start_time || raw.startTime;
-  } else {
-    dateValue = raw.end_time || raw.endTime;
-  }
-  
-  if (!dateValue) {
-    // Retornar fecha por defecto en el futuro
-    const defaultDate = new Date();
-    defaultDate.setDate(defaultDate.getDate() + 30); // 30 días en el futuro
-    return defaultDate.toISOString();
-  }
-  
-  try {
-    // Intentar parsear la fecha
-    const date = new Date(dateValue);
-    if (isNaN(date.getTime())) {
-      throw new Error('Invalid date');
-    }
-    return date.toISOString();
-  } catch {
-    // Si falla, retornar fecha por defecto
-    const defaultDate = new Date();
-    defaultDate.setDate(defaultDate.getDate() + 30);
-    return defaultDate.toISOString();
-  }
+function normalizeDateTime(raw: RawActivityData, which: 'start' | 'end'): string {
+  const v = which === 'start' ? (raw.start_time ?? raw.startTime) : (raw.end_time ?? raw.endTime);
+  if (typeof v === 'string') return v;
+  return toSafeString(v);
 }
 
-/**
- * Calcula si la actividad está llena
- */
 function calculateIsFull(raw: RawActivityData, enrolled: number, capacity: number): boolean {
-  // Si viene is_full o isFull, usarlo
-  if (raw.is_full !== undefined) return toSafeBoolean(raw.is_full);
-  if (raw.isFull !== undefined) return toSafeBoolean(raw.isFull);
-  
-  // Calcular basado en enrolled vs capacity
-  return enrolled >= capacity;
+  const isFullFlag = raw.is_full ?? raw.isFull;
+  if (typeof isFullFlag === 'boolean') return isFullFlag;
+  return Math.max(0, capacity - enrolled) === 0;
 }
 
 /**
@@ -175,6 +118,12 @@ export function adaptActivity(raw: RawActivityData): PublicActivity {
   const availableSpots = raw.available_spots !== undefined
     ? toSafeNumber(raw.available_spots, Math.max(capacity - enrolled, 0))
     : Math.max(capacity - enrolled, 0);
+
+  // Determinar speakerId a partir de objeto anidado `speaker` o campo plano `speakerId`
+  const nestedSpeakerId = raw.speaker && raw.speaker.id !== undefined && raw.speaker.id !== null
+    ? toSafeString(raw.speaker.id)
+    : null;
+  const speakerId = nestedSpeakerId ?? (raw.speakerId !== undefined && raw.speakerId !== null ? toSafeString(raw.speakerId) : null);
   
   return {
     id,
@@ -192,7 +141,7 @@ export function adaptActivity(raw: RawActivityData): PublicActivity {
     published,
     description: raw.description !== undefined && raw.description !== null ? toSafeString(raw.description) : null,
     instructor: raw.instructor !== undefined && raw.instructor !== null ? toSafeString(raw.instructor) : null,
-    speakerId: raw.speakerId !== undefined && raw.speakerId !== null ? toSafeString(raw.speakerId) : null,
+    speakerId,
     requirements: raw.requirements && Array.isArray(raw.requirements) && raw.requirements.length > 0 ? raw.requirements : null
   };
 }

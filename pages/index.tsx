@@ -63,11 +63,7 @@ function App({ activities, faq, speakers, hasError, errorMessage }: Props) {
           <Winners />
           <Newsletter />
           <UMGSection />
-          {faq && faq.length > 0 ? (
-            <FAQ faq={faq} />
-          ) : (
-            createNoDataBanner('No hay preguntas frecuentes disponibles.')
-          )}
+          <FAQ faq={faq} />
         </div>
         <Footer />
         <ScrollToTop />

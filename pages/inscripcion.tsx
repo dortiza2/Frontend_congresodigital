@@ -62,6 +62,11 @@ export default function InscripcionPage() {
   const { user, loading, loginEmail, loginGoogle, logout } = useAuth();
   const { showSuccess, showError, showWarning } = useToast();
   
+  // Prefetch de la landing para acelerar regreso
+  useEffect(() => {
+    router.prefetch('/');
+  }, [router]);
+  
   // Estados principales
   const [pageState, setPageState] = useState<PageState>('login');
   const [activities, setActivities] = useState<PublicActivity[]>([]);
@@ -1769,17 +1774,40 @@ export default function InscripcionPage() {
 
 export const getServerSideProps = async (ctx: any) => {
   const cookie = ctx.req.headers.cookie ?? "";
-  // Usar nombres de variables consistentes con lib/api.ts
-  // API_BASE_URL (SSR) o NEXT_PUBLIC_API_URL (cliente). Fallback seguro en dev.
-  const baseRoot = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'https://congreso-api.onrender.com';
-  const base = baseRoot.replace(/\/$/, '');
+  const bases = [
+    process.env.API_BASE_URL,
+    process.env.NEXT_PUBLIC_API_URL,
+    process.env.API_URL,
+    'https://congreso-api.onrender.com'
+  ].filter((v) => typeof v === 'string' && !!v).map((v) => (v as string).replace(/\/$/, ''));
 
-  const me = await fetch(base + "/api/auth/session", { headers: { cookie }, credentials: "include" });
-  if (me.status === 401) return { props: {} };
+  const safeFetch = async (path: string): Promise<Response | null> => {
+    for (const b of bases) {
+      try {
+        const res = await fetch(b + path, { headers: { cookie }, credentials: 'include' });
+        return res;
+      } catch (err) {
+        // Continuar con siguiente base si hay fallo de red (TypeError: fetch failed)
+        console.error(`[SSR] fetch failed for ${b + path}:`, (err as any)?.message || err);
+        continue;
+      }
+    }
+    return null;
+  };
 
-  const sum = await fetch(base + "/api/enrollments/summary", { headers: { cookie }, credentials: "include" });
-  const { count = 0 } = await sum.json().catch(() => ({ count: 0 }));
-  if (count > 0) return { redirect: { destination: "/mi-cuenta", permanent: false } };
+  try {
+    const me = await safeFetch('/api/auth/session');
+    if (!me || me.status === 401) return { props: {} };
 
-  return { props: {} };
+    const sum = await safeFetch('/api/enrollments/summary');
+    if (sum) {
+      const { count = 0 } = await sum.json().catch(() => ({ count: 0 }));
+      if (count > 0) return { redirect: { destination: '/mi-cuenta', permanent: false } };
+    }
+
+    return { props: {} };
+  } catch (err) {
+    console.error('[SSR] getServerSideProps error:', err);
+    return { props: {} };
+  }
 };

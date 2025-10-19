@@ -27,12 +27,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Si no hay sesión de NextAuth, verificar token JWT del backend
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Not authenticated' });
+    let authHeader = req.headers.authorization;
+    let token: string | null = null;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    } else {
+      // Intentar obtener token desde cookie 'cd_jwt'
+      const cookieHeader = req.headers.cookie || '';
+      const match = cookieHeader.match(/(?:^|; )cd_jwt=([^;]+)/);
+      if (match && match[1]) {
+        token = decodeURIComponent(match[1]);
+      }
     }
 
-    const token = authHeader.substring(7); // Remover "Bearer "
+    if (!token) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
 
     // Validar token con el backend
     try {

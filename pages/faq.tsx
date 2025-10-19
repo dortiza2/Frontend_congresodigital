@@ -17,11 +17,7 @@ export default function FaqPage({ faq, hasError, errorMessage }: Props) {
       <Navbar />
       <main className="page-container">
         {hasError && errorMessage && createErrorBanner(new Error(errorMessage), 'faq')}
-        {faq && faq.length > 0 ? (
-          <FAQ faq={faq} />
-        ) : (
-          createNoDataBanner('No hay preguntas frecuentes disponibles por el momento.')
-        )}
+        <FAQ faq={faq} />
       </main>
       <Footer />
     </>

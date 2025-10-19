@@ -15,6 +15,8 @@ export type PodiumItem = {
   winnerType?: string;
   teamId?: string;
   prizeDescription?: string;
+  // Imagen del equipo/ganador si está disponible en respuestas locales
+  teamImage?: string;
 };
 
 export const getPodiumByYear = async (year?: number): Promise<PodiumItem[]> => {
@@ -34,6 +36,7 @@ export const getPodiumByYear = async (year?: number): Promise<PodiumItem[]> => {
       winnerType: w.winnerType ?? undefined,
       teamId: w.teamId ?? undefined,
       prizeDescription: w.prizeDescription ?? w.projectShort ?? undefined,
+      teamImage: w.teamImage ?? w.image ?? undefined,
     }));
   }
   return [];

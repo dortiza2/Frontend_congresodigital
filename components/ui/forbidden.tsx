@@ -114,10 +114,12 @@ export function RoleForbidden({ requiredRoles }: { requiredRoles: string[] }) {
 // Componente específico para niveles de rol
 export function RoleLevelForbidden({ 
   currentLevel, 
-  requiredLevel 
+  requiredLevel,
+  message
 }: { 
   currentLevel: number; 
-  requiredLevel: number; 
+  requiredLevel: number;
+  message?: string;
 }) {
   const getRoleLevelDescription = (level: number): string => {
     switch (level) {
@@ -128,10 +130,12 @@ export function RoleLevelForbidden({
     }
   };
 
+  const defaultMessage = message || `Tu nivel actual es ${getRoleLevelDescription(currentLevel)} (Nivel ${currentLevel}). Esta página requiere ${getRoleLevelDescription(requiredLevel)} (Nivel ${requiredLevel}) o superior.`;
+
   return (
     <ForbiddenPage
       title="Nivel de Acceso Insuficiente"
-      message={`Tu nivel actual es ${getRoleLevelDescription(currentLevel)} (Nivel ${currentLevel}). Esta página requiere ${getRoleLevelDescription(requiredLevel)} (Nivel ${requiredLevel}) o superior.`}
+      message={defaultMessage}
     />
   );
 }

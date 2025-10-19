@@ -171,7 +171,7 @@ export function getDefaultRouteByRoleLevel(roleLevel: number): string {
   // roleLevel: 3=AdminDev, 2=Admin, 1=Asistente, 0=Student
   
   if (roleLevel === 3) {
-    return '/admin'; // AdminDev - Acceso completo a admin
+    return '/dashboard'; // AdminDev - Acceso a dashboard según nueva política
   }
   
   if (roleLevel === 2) {
@@ -184,6 +184,10 @@ export function getDefaultRouteByRoleLevel(roleLevel: number): string {
   
   if (roleLevel === 0) {
     return '/mi-cuenta'; // Student - Mi Cuenta (default, will be overridden by enrollment-based routing)
+  }
+
+  if (roleLevel === 4) {
+    return '/mi-cuenta'; // Usuario especial - Mi Cuenta
   }
   
   // Default para cualquier otro caso

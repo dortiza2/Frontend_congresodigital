@@ -97,16 +97,19 @@ export function getDefaultRouteByProfile(user: UserProfile): string {
   // Usar roleLevel si está disponible (más robusto)
   if (user.roleLevel !== undefined) {
     if (user.roleLevel === 3) {
-      return '/admin'; // AdminDev - acceso completo a admin
+      return '/dashboard'; // AdminDev - acceso a dashboard
     }
     if (user.roleLevel === 2) {
-      return '/admin'; // Admin - acceso a admin
+      return '/dashboard'; // Admin - acceso a dashboard
     }
     if (user.roleLevel === 1) {
-      return '/portal'; // Asistente - acceso a portal
+      return '/dashboard'; // Asistente - acceso a dashboard
     }
     if (user.roleLevel === 0) {
       return '/mi-cuenta'; // Student - mi cuenta
+    }
+    if (user.roleLevel === 4) {
+      return '/mi-cuenta'; // Usuario especial - mi cuenta
     }
   }
   
@@ -115,9 +118,9 @@ export function getDefaultRouteByProfile(user: UserProfile): string {
     switch (user.staffRole) {
       case STAFF_ROLES.ADMIN_DEV:
       case STAFF_ROLES.ADMIN:
-        return '/admin';
+        return '/dashboard';
       case STAFF_ROLES.ASISTENTE:
-        return '/portal';
+        return '/dashboard';
       default:
         return '/mi-cuenta';
     }
@@ -129,16 +132,16 @@ export function getDefaultRouteByProfile(user: UserProfile): string {
 
 /**
  * Obtiene el texto del botón del dashboard según el perfil del usuario
- * roleLevel≥1 = "Dashboard", roleLevel===0 = "Mi Cuenta"
+ * roleLevel≤3 = "Dashboard", roleLevel===0 o 4 = "Mi Cuenta"
  */
 export function getDashboardButtonText(user: UserProfile): string {
   const roleLevel = user.roleLevel || 0; // Default para estudiantes
   
-  if (roleLevel >= 1) {
-    return 'Dashboard';
+  if (roleLevel === 0 || roleLevel === 4) {
+    return 'Mi Cuenta'; // Para estudiantes (roleLevel 0) y usuarios especiales (roleLevel 4)
   }
   
-  return 'Mi Cuenta'; // Para estudiantes (roleLevel 0)
+  return 'Dashboard'; // Para todos los demás (roleLevel 1, 2, 3)
 }
 
 /**
@@ -162,7 +165,12 @@ export function canAccessRoute(user: UserProfile, route: string): boolean {
   const roleLevel = user.roleLevel || 0;
 
   // Rutas específicas por rol
-  if (route.startsWith('/mi-cuenta') || route.startsWith('/inscripcion')) {
+  if (route.startsWith('/mi-cuenta')) {
+    // Permitido para estudiantes (roleLevel 0) y usuarios con roleLevel 4
+    return roleLevel === 0 || roleLevel === 4;
+  }
+
+  if (route.startsWith('/inscripcion')) {
     // Permitido para estudiantes (roleLevel 0) y páginas públicas
     return roleLevel === 0;
   }
@@ -178,8 +186,8 @@ export function canAccessRoute(user: UserProfile, route: string): boolean {
   }
 
   if (route.startsWith('/dashboard')) {
-    // Bloqueado para estudiantes (roleLevel 0)
-    return roleLevel >= 1;
+    // Permitido para todos los usuarios con roleLevel <= 3
+    return roleLevel <= 3;
   }
 
   // Rutas de staff

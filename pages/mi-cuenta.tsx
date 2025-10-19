@@ -4,6 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getCurrentUserEnrollments, UserEnrollment } from '@/services/enrollments';
 import { api, apiClient } from '@/lib/api';
 import Navbar from '@/components/Navbar';
+import { GetServerSideProps } from 'next';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import Link from 'next/link';
 import { formatGT, formatGTTime, formatGTShort } from '@/lib/datetime';
 import { 
@@ -524,18 +527,40 @@ export default function MiCuenta() {
   }
 }
 
-export const getServerSideProps = async (ctx: any) => {
-  const cookie = ctx.req.headers.cookie ?? "";
-  // Variables de entorno unificadas para SSR/cliente
-  const baseRoot = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || 'https://congreso-api.onrender.com';
-  const base = baseRoot.replace(/\/$/, '');
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Obtener sesión con NextAuth
+  const session = await getServerSession(context.req, context.res, authOptions);
 
-  const me = await fetch(base + "/api/auth/session", { headers: { cookie }, credentials: "include" });
-  if (me.status === 401) return { redirect: { destination: "/inscripcion", permanent: false } };
+  // Redirigir no autenticados
+  if (!session?.user) {
+    return {
+      redirect: { destination: '/inscripcion', permanent: false },
+    };
+  }
 
-  const sum = await fetch(base + "/api/enrollments/summary", { headers: { cookie }, credentials: "include" });
-  const { count = 0 } = await sum.json().catch(() => ({ count: 0 }));
-  if (count === 0) return { redirect: { destination: "/inscripcion", permanent: false } };
+  // Validar roleLevel: solo permitido 0 y 4
+  const roleLevel = session.user.roleLevel ?? 0;
+  if (!(roleLevel === 0 || roleLevel === 4)) {
+    // Enviar a dashboard para roles de staff/admin
+    return {
+      redirect: { destination: '/dashboard', permanent: false },
+    };
+  }
+
+  // Mantener verificación de resumen de inscripciones para estudiantes (si aplica)
+  try {
+    const cookie = context.req.headers.cookie ?? '';
+    const baseRoot = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || 'https://congreso-api.onrender.com';
+    const base = baseRoot.replace(/\/$/, '');
+
+    const sum = await fetch(base + '/api/enrollments/summary', { headers: { cookie }, credentials: 'include' });
+    const { count = 0 } = await sum.json().catch(() => ({ count: 0 }));
+    // Si no tiene inscripciones, permitir acceso igualmente a Mi Cuenta (no forzar inscripción)
+    // Si prefieres forzar inscripción, descomenta la siguiente redirección:
+    // if (count === 0) return { redirect: { destination: '/inscripcion', permanent: false } };
+  } catch {
+    // No bloquear por error de API en SSR
+  }
 
   return { props: {} };
 };

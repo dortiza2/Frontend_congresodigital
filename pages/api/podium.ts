@@ -24,7 +24,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         const winnersPath = `/api/winners${params.toString() ? `?${params.toString()}` : ''}`;
         const winners = await apiClient.get(winnersPath);
-        return res.status(200).json(Array.isArray(winners) ? winners : (winners?.data ?? []));
+        const winnersData = Array.isArray(winners) ? winners : (winners?.data ?? []);
+
+        // Normalizar estructura de winners (YearWinners) a lista plana tipo PodiumItemDTO
+        const parsedYear = (year && typeof year === 'string') ? parseInt(year, 10) : new Date().getFullYear();
+        const normalized = Array.isArray(winnersData)
+          ? winnersData.flatMap((aw: any) => {
+              const placements = Array.isArray(aw?.placements) ? aw.placements : [];
+              const activityTitle = (aw?.activity ?? '').toString();
+              return placements.map((p: any) => {
+                const placeNum = Number(p?.place ?? 0);
+                const name = p?.team ?? (Array.isArray(p?.members) ? p.members.join(' & ') : undefined);
+                const teamImage = p?.image ?? undefined;
+                return {
+                  year: parsedYear,
+                  place: Number.isFinite(placeNum) ? placeNum : 0,
+                  activityTitle,
+                  winnerName: name,
+                  // Campo extra para clientes que quieran mostrar imagen del equipo
+                  teamImage,
+                };
+              });
+            })
+          : [];
+
+        return res.status(200).json(normalized);
       } catch (e2: any) {
         console.warn('Winners fallback failed or empty, returning []:', e2?.message || e2);
         return res.status(200).json([]);

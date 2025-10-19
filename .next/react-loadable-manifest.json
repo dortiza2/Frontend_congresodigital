@@ -1,0 +1,56 @@
+{
+  "pages/index.tsx -> ../components/Activities": {
+    "id": "pages/index.tsx -> ../components/Activities",
+    "files": [
+      "static/chunks/_pages-dir-browser_components_Activities_tsx.js"
+    ]
+  },
+  "pages/index.tsx -> ../components/Agenda": {
+    "id": "pages/index.tsx -> ../components/Agenda",
+    "files": [
+      "static/chunks/_pages-dir-browser_components_Agenda_tsx.js"
+    ]
+  },
+  "pages/index.tsx -> ../components/Congress": {
+    "id": "pages/index.tsx -> ../components/Congress",
+    "files": [
+      "static/chunks/_pages-dir-browser_components_Congress_tsx.js"
+    ]
+  },
+  "pages/index.tsx -> ../components/FAQ": {
+    "id": "pages/index.tsx -> ../components/FAQ",
+    "files": [
+      "static/chunks/_pages-dir-browser_components_FAQ_tsx.js"
+    ]
+  },
+  "pages/index.tsx -> ../components/Footer": {
+    "id": "pages/index.tsx -> ../components/Footer",
+    "files": [
+      "static/chunks/_pages-dir-browser_components_Footer_tsx.js"
+    ]
+  },
+  "pages/index.tsx -> ../components/Newsletter": {
+    "id": "pages/index.tsx -> ../components/Newsletter",
+    "files": [
+      "static/chunks/_pages-dir-browser_components_Newsletter_tsx.js"
+    ]
+  },
+  "pages/index.tsx -> ../components/Speakers": {
+    "id": "pages/index.tsx -> ../components/Speakers",
+    "files": [
+      "static/chunks/_pages-dir-browser_components_Speakers_tsx.js"
+    ]
+  },
+  "pages/index.tsx -> ../components/UMGSection": {
+    "id": "pages/index.tsx -> ../components/UMGSection",
+    "files": [
+      "static/chunks/_pages-dir-browser_components_UMGSection_tsx.js"
+    ]
+  },
+  "pages/index.tsx -> ../components/Winners": {
+    "id": "pages/index.tsx -> ../components/Winners",
+    "files": [
+      "static/chunks/_pages-dir-browser_components_Winners_tsx.js"
+    ]
+  }
+}

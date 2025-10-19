@@ -65,15 +65,18 @@ function MobileNav() {
 
   const shouldShowDashboard = () => {
     if (user) {
-      const roleLevel = user.roleLevel || 0;
-      return roleLevel >= 1;
+      const roleLevel = user.roleLevel ?? 0;
+      return roleLevel <= 3; // Mostrar Dashboard para roles 0, 1, 2 y 3
     }
     return false;
   };
 
   const shouldShowAccount = () => {
-    // Mostrar Mi Cuenta para usuarios logueados, pero no en la página mi-cuenta
-    return !!user && router.pathname !== '/mi-cuenta';
+    if (user) {
+      const roleLevel = user.roleLevel ?? 0;
+      return (roleLevel === 0 || roleLevel === 4) && router.pathname !== '/mi-cuenta';
+    }
+    return false;
   };
 
   useEffect(() => {
@@ -226,15 +229,19 @@ export default function Navbar() {
 
   const shouldShowDashboard = () => {
     if (user) {
-      const roleLevel = user.roleLevel || 0;
-      return roleLevel >= 1;
+      const roleLevel = user.roleLevel ?? 0;
+      return roleLevel <= 3; // Dashboard visible para roleLevel 0,1,2,3
     }
     return false;
   };
 
   const shouldShowAccount = () => {
-    // Mostrar Mi Cuenta para usuarios logueados, pero no en la página mi-cuenta
-    return !!user && !onMyAccount;
+    if (user) {
+      const roleLevel = user.roleLevel ?? 0;
+      // Mi Cuenta visible solo para roleLevel 0 y 4
+      return (roleLevel === 0 || roleLevel === 4) && !onMyAccount;
+    }
+    return false;
   };
 
   // Extract firstName from user data

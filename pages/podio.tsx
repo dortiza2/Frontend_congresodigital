@@ -4,9 +4,11 @@ import { Trophy } from "lucide-react";
 import Navbar from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { createErrorBanner, createNoDataBanner, logSsrError } from '../lib/errorHandler';
-import { getPodium, PodiumItemDTO, safeGet } from '@/lib/api';
+import { PodiumItemDTO } from '@/lib/api';
+import { getMockPodiumDTOByYear } from '@/data/podiumMock';
 import Link from 'next/link';
 import { EmptyState } from '@/components/ui/empty-state';
+import { useRouter } from 'next/router';
 
 type Props = {
   year: number;
@@ -20,26 +22,28 @@ export default function PodioPage({ year, items, hasError, errorMessage }: Props
   const [podioItems, setPodioItems] = useState<PodiumItemDTO[]>(items || []);
   const [loading, setLoading] = useState<boolean>(false);
   const [clientError, setClientError] = useState<string | undefined>(undefined);
+  // Datos mock integrados para SSR y CSR
 
   // Opciones de año (últimos 3 años)
   const currentYear = new Date().getFullYear();
   const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
 
+  const router = useRouter();
+  useEffect(() => {
+    router.prefetch('/');
+  }, [router]);
+
   useEffect(() => {
     // Cargar datos cuando cambia el año seleccionado (CSR)
-    const fetchPodio = async () => {
+    const fetchPodio = () => {
       setLoading(true);
       setClientError(undefined);
       try {
-        const res = await safeGet<PodiumItemDTO[]>(`/api/podium?year=${selectedYear}`);
-        if (res.success && Array.isArray(res.data)) {
-          setPodioItems(res.data);
-        } else {
-          setPodioItems([]);
-        }
+        const data = getMockPodiumDTOByYear(selectedYear);
+        setPodioItems(Array.isArray(data) ? data : []);
       } catch (err: any) {
         setPodioItems([]);
-        setClientError('Error al conectar con el servidor de podio');
+        setClientError('Error al cargar datos del podio (mock)');
       } finally {
         setLoading(false);
       }
@@ -105,9 +109,9 @@ export default function PodioPage({ year, items, hasError, errorMessage }: Props
         <EmptyState
           icon="award"
           title="Sin registros históricos"
-          message="Aún no hay resultados de ediciones anteriores."
+          message="Aún no hay resultados de ediciones anteriores (mock)."
           actionLabel="Volver a inicio"
-          onAction={() => { /* navegación simple */ window.location.href = '/'; }}
+          onAction={() => router.push('/')}
           className="bg-sky-50/80 text-sky-700 border border-sky-200"
         />
       </div>
@@ -158,20 +162,14 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
   let errorMessage = '';
 
   try {
-    const res = await getPodium(year);
-    // Si el backend no tiene datos o responde con error, no mostrar banner de error SSR, solo vacíos
-    items = res.status === 'ok' ? res.data : [];
-    // No marcar error por respuestas vacías o errores controlados; se mostrará el banner "Sin datos"
+    const data = getMockPodiumDTOByYear(year);
+    items = Array.isArray(data) ? data : [];
     hasError = false;
     errorMessage = '';
-    if (res.status !== 'ok') {
-      logSsrError('/api/podium', res);
-    }
   } catch (error) {
-    // Solo en caso de excepción de red u otro error inesperado, mostrar banner de error SSR
-    logSsrError('/api/podium', error);
+    logSsrError('/data/podiumMock', error);
     hasError = true;
-    errorMessage = 'Error al conectar con el servidor de podio';
+    errorMessage = 'Error al cargar datos del podio (mock)';
     items = [];
   }
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import ForbiddenPage, { StaffForbidden, AdminForbidden, RoleForbidden } from '@/components/ui/forbidden';
+import RoleLevelGate from './RoleLevelGate';
 
 // Helper para validar dominios permitidos (mismo que en AuthContext)
 const isAllowedDomain = (email: string): boolean => {
@@ -254,18 +255,11 @@ export function withRouteGuard<P extends object>(
 }
 
 // Componentes específicos para diferentes tipos de protección
-export const DashboardGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  console.log('[DashboardGuard] Protegiendo ruta dashboard - requiere roleLevel >= 1');
-  
-  // Usar el nuevo RoleLevelGate en lugar de RouteGuard
-  const RoleLevelGate = require('./RoleLevelGate').default;
-  
-  return (
-    <RoleLevelGate minRoleLevel={1}>
-      {children}
-    </RoleLevelGate>
-  );
-};
+export const DashboardGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <RoleLevelGate minRoleLevel={0} maxRoleLevel={3}>
+    {children}
+  </RoleLevelGate>
+);
 
 export const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   console.log('[AuthGuard] Protegiendo ruta - solo requiere autenticación');
@@ -298,9 +292,6 @@ export const StaffGuard: React.FC<{ children: React.ReactNode }> = ({ children }
 export const AdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   console.log('[AdminGuard] Protegiendo ruta admin - requiere roleLevel >= 2');
   
-  // Usar el nuevo RoleLevelGate en lugar de RouteGuard
-  const RoleLevelGate = require('./RoleLevelGate').default;
-  
   return (
     <RoleLevelGate minRoleLevel={2}>
       {children}
@@ -311,9 +302,6 @@ export const AdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }
 // Guard específico para rutas que requieren SOLO DevAdmin (nivel 3)
 export const DevAdminOnlyGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   console.log('[DevAdminOnlyGuard] Protegiendo ruta - requiere roleLevel = 3 (solo DevAdmin)');
-  
-  // Usar el nuevo RoleLevelGate en lugar de RouteGuard
-  const RoleLevelGate = require('./RoleLevelGate').default;
   
   return (
     <RoleLevelGate minRoleLevel={3}>
@@ -340,9 +328,6 @@ export const AssistantGuard: React.FC<{ children: React.ReactNode }> = ({ childr
 // Guard específico para DevAdmin (nivel 3)
 export const DevAdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   console.log('[DevAdminGuard] Protegiendo ruta devadmin - requiere roleLevel >= 3');
-  
-  // Usar el nuevo RoleLevelGate en lugar de RouteGuard
-  const RoleLevelGate = require('./RoleLevelGate').default;
   
   return (
     <RoleLevelGate minRoleLevel={3}>

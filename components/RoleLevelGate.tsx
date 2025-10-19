@@ -5,6 +5,7 @@ import { RoleLevelForbidden } from '@/components/ui/forbidden';
 interface RoleLevelGateProps {
   children: React.ReactNode;
   minRoleLevel: number; // Nivel mínimo requerido (1=Asistente, 2=Admin, 3=DevAdmin)
+  maxRoleLevel?: number; // Nivel máximo permitido (opcional)
   fallback?: React.ReactNode;
 }
 
@@ -20,6 +21,7 @@ const getRoleLevelDescription = (level: number): string => {
 const RoleLevelGate: React.FC<RoleLevelGateProps> = ({ 
   children, 
   minRoleLevel, 
+  maxRoleLevel,
   fallback 
 }) => {
   const { user } = useAuth();
@@ -58,6 +60,19 @@ const RoleLevelGate: React.FC<RoleLevelGateProps> = ({
         <RoleLevelForbidden 
           currentLevel={userRoleLevel} 
           requiredLevel={minRoleLevel} 
+        />
+      )
+    );
+  }
+
+  // Verificar si el usuario excede el nivel máximo permitido
+  if (maxRoleLevel !== undefined && userRoleLevel > maxRoleLevel) {
+    return (
+      fallback || (
+        <RoleLevelForbidden 
+          currentLevel={userRoleLevel} 
+          requiredLevel={maxRoleLevel}
+          message="Nivel de rol demasiado alto para acceder a esta página"
         />
       )
     );

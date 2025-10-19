@@ -5,16 +5,16 @@ import type { JWT } from 'next-auth/jwt';
 // Configuración de rutas y roles
 const PROTECTED_ROUTES = {
   // Rutas que requieren autenticación básica
-  AUTH_REQUIRED: ['/mi-cuenta', '/portal', '/inscripcion/completar'],
+  AUTH_REQUIRED: ['/mi-cuenta', '/portal', '/inscripcion/completar', '/dashboard'],
   
   // Rutas que requieren rol de staff (roleLevel >= 2)
-  STAFF_REQUIRED: ['/dashboard', '/admin', '/staff'],
+  STAFF_REQUIRED: ['/admin', '/staff'],
   
   // Rutas que requieren rol específico de admin
   ADMIN_REQUIRED: ['/admin/usuarios', '/admin/configuracion'],
   
   // Rutas públicas (no requieren autenticación)
-  PUBLIC: ['/', '/inscripcion', '/faq', '/actividades', '/agenda', '/ganadores', '/podio', '/api/auth']
+  PUBLIC: ['/', '/inscripcion', '/faq', '/actividades', '/agenda', '/ganadores', '/podio', '/expositores', '/api/auth']
 };
 
 // Rutas de redirección por rol
@@ -76,9 +76,10 @@ function getUserRoleLevel(token: JWT | null): number {
 }
 
 function getRedirectByRole(roleLevel: number): string {
-  if (roleLevel >= 2) return REDIRECT_ROUTES.STAFF_DASHBOARD;
-  if (roleLevel === 1) return REDIRECT_ROUTES.STAFF_DASHBOARD;
-  return REDIRECT_ROUTES.STUDENT_DASHBOARD;
+  // roles 1,2,3 → dashboard; role 4 → mi-cuenta; role 0 → mi-cuenta
+  if (roleLevel >= 1 && roleLevel <= 3) return REDIRECT_ROUTES.STAFF_DASHBOARD;
+  if (roleLevel === 4 || roleLevel === 0) return REDIRECT_ROUTES.STUDENT_DASHBOARD;
+  return '/';
 }
 
 /**
@@ -165,7 +166,30 @@ export async function middleware(request: NextRequest) {
     }
 
     // Evitar que estudiantes accedan a rutas de staff
-    if ((pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) && roleLevel < 2) {
+    if (pathname.startsWith('/admin') && roleLevel < 2) {
+      if (isAuthenticated) {
+        return NextResponse.redirect(new URL(REDIRECT_ROUTES.STUDENT_DASHBOARD, request.url));
+      } else {
+        const loginUrl = new URL(REDIRECT_ROUTES.LOGIN, request.url);
+        loginUrl.searchParams.set('next', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+    }
+
+    // Restringir Mi Cuenta solo a roles 0 y 4
+    if (pathname.startsWith('/mi-cuenta')) {
+      if (!isAuthenticated) {
+        const loginUrl = new URL(REDIRECT_ROUTES.LOGIN, request.url);
+        loginUrl.searchParams.set('next', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+      if (!(roleLevel === 0 || roleLevel === 4)) {
+        return NextResponse.redirect(new URL(REDIRECT_ROUTES.STAFF_DASHBOARD, request.url));
+      }
+    }
+
+    // Dashboard es accesible para todos los usuarios con roleLevel <= 3
+    if (pathname.startsWith('/dashboard') && roleLevel > 3) {
       if (isAuthenticated) {
         return NextResponse.redirect(new URL(REDIRECT_ROUTES.STUDENT_DASHBOARD, request.url));
       } else {

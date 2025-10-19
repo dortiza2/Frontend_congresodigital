@@ -44,13 +44,10 @@ function formatTime(isoString: string): string {
   return formatGTTime(isoString);
 }
 
-// Función para obtener días únicos de las actividades
-function getUniqueDays(activities: PublicActivity[]): string[] {
-  const days = [...new Set(activities.map(item => {
-    const date = new Date(item.startTime);
-    return date.toISOString().split('T')[0];
-  }))];
-  return days.sort();
+// Función para obtener años únicos de las actividades
+function getUniqueYears(activities: PublicActivity[]): string[] {
+  const years = [...new Set(activities.map(item => new Date(item.startTime).getFullYear().toString()))];
+  return years.sort((a, b) => Number(b) - Number(a));
 }
 
 // Función para formatear fecha para mostrar
@@ -59,8 +56,8 @@ function formatDate(dateString: string): string {
 }
 
 // Componente para el título dinámico de la agenda
-function AgendaHeader() {
-  const year = new Date().getFullYear();
+function AgendaHeader({ selectedYear }: { selectedYear?: string }) {
+  const year = selectedYear ?? new Date().getFullYear();
 
   return (
     <h2 className="text-3xl lg:text-4xl font-bold md:text-center">
@@ -72,8 +69,8 @@ function AgendaHeader() {
 export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initialActivities?: PublicActivity[]; initialSpeakers?: PublicSpeaker[] }) => {
   const [agenda, setAgenda] = useState<ActivityWithSpeaker[]>([]);
   const [speakers, setSpeakers] = useState<PublicSpeaker[]>([]);
-  const [selectedDay, setSelectedDay] = useState<string>('');
-  const [availableDays, setAvailableDays] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,10 +85,10 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
         const activitiesData: PublicActivity[] = initialActivities;
         const speakersData: PublicSpeaker[] = initialSpeakers;
         setSpeakers(speakersData);
-        const days = getUniqueDays(activitiesData);
-        setAvailableDays(days);
-        if (days.length > 0 && !selectedDay) {
-          setSelectedDay(days[0]);
+        const years = getUniqueYears(activitiesData);
+        setAvailableYears(years);
+        if (years.length > 0 && !selectedYear) {
+          setSelectedYear(years[0]);
         }
         const processedActivities: ActivityWithSpeaker[] = activitiesData.map(item => {
           const speaker = item.speakerId
@@ -129,19 +126,18 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
       
       setSpeakers(speakersData);
         
-        // Obtener días únicos y establecer el primer día como seleccionado por defecto
-        const days = getUniqueDays(activitiesData);
-        setAvailableDays(days);
-        if (days.length > 0 && !selectedDay) {
-          setSelectedDay(days[0]);
+        // Obtener años únicos y establecer el primer año como seleccionado por defecto
+        const years = getUniqueYears(activitiesData);
+        setAvailableYears(years);
+        if (years.length > 0 && !selectedYear) {
+          setSelectedYear(years[0]);
         }
         
         // Procesar actividades con vínculo a speakers (si existe speakerId)
         const processedActivities: ActivityWithSpeaker[] = activitiesData.map(item => {
-          const speaker = item.speakerId
+          const speaker = (item as any).speaker || (item.speakerId
             ? speakersData.find(s => s.id === item.speakerId)
-            : undefined;
-
+            : undefined);
           return {
             ...item,
             speaker,
@@ -159,14 +155,11 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
     };
 
     loadData();
-  }, [selectedDay]);
+  }, [selectedYear]);
 
-  // Filtrar actividades por día seleccionado
-  const filteredAgenda = selectedDay 
-    ? agenda.filter(item => {
-        const itemDate = new Date(item.startTime).toISOString().split('T')[0];
-        return itemDate === selectedDay;
-      })
+  // Filtrar actividades por año seleccionado
+  const filteredAgenda = selectedYear 
+    ? agenda.filter(item => new Date(item.startTime).getFullYear().toString() === selectedYear)
     : agenda;
 
   // Función para obtener el color del badge según el estado
@@ -209,21 +202,28 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
   return (
     <section id="agenda" className="py-24 sm:py-32 space-y-8">
       <div className="text-center space-y-4">
-        <AgendaHeader />
+        <AgendaHeader selectedYear={selectedYear} />
         
-        {/* Filtro por día */}
-        {availableDays.length > 1 && (
+        {/* Filtro por año */}
+        {availableYears.length > 1 && (
           <div className="flex justify-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-[280px]">
-                  {selectedDay ? formatDate(selectedDay) : "Selecciona un día"}
+                <Button
+                  variant={selectedYear ? "default" : "outline"}
+                  className={`w-[240px] rounded-xl transition-all ${selectedYear ? 'bg-sky-600 text-white hover:bg-sky-700 border-none shadow-md' : 'bg-sky-50 hover:bg-sky-100 border border-sky-200 text-slate-700 shadow-sm'}`}
+                >
+                  {selectedYear ? selectedYear : "Selecciona año"}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {availableDays.map(day => (
-                  <DropdownMenuItem key={day} onClick={() => setSelectedDay(day)}>
-                    {formatDate(day)}
+              <DropdownMenuContent className="rounded-xl shadow-lg border border-sky-200 bg-white">
+                {availableYears.map(year => (
+                  <DropdownMenuItem
+                    key={year}
+                    onClick={() => setSelectedYear(year)}
+                    className="cursor-pointer rounded-md focus:bg-sky-100 data-[highlighted]:bg-sky-100"
+                  >
+                    {year}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -236,7 +236,7 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
       <div className="max-w-4xl mx-auto space-y-4">
         {filteredAgenda.length === 0 ? (
           <div className="text-center text-muted-foreground" aria-live="polite">
-            No hay actividades para el día seleccionado. Próximamente publicaremos la agenda.
+            No hay actividades para el año seleccionado. Próximamente publicaremos la agenda.
           </div>
         ) : (
           filteredAgenda.map((item, index) => (
@@ -285,6 +285,7 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
               {item.speaker && (
                 <CardContent className="pt-0 pl-10">
                   <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    <Badge variant="secondary" className="text-xs">Ponente</Badge>
                     <Avatar className="h-10 w-10">
                       <AvatarImage 
                         src={item.speaker.avatarUrl || '/avatars/default.svg'} 
@@ -299,7 +300,10 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium">{item.speaker.name}</p>
+                      <p className="font-medium">
+                        <span className="text-muted-foreground mr-1">Ponente:</span>
+                        {item.speaker.name}
+                      </p>
                       <p className="text-sm text-muted-foreground">{item.speaker.roleTitle || item.speaker.company || ''}</p>
                     </div>
                   </div>
