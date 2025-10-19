@@ -48,7 +48,7 @@ export const HowItWorks = () => {
         </span>
         Step-by-Step Guide
       </h2>
-      <p className="md:w-3/4 mx-auto mt-4 mb-8 text-xl text-muted-foreground">
+      <p className="md:w-3/4 mx-auto mt-4 mb-8 text-xl text-black">
         Lorem ipsum dolor sit amet consectetur, adipisicing elit. Veritatis
         dolor pariatur sit!
       </p>
@@ -57,15 +57,15 @@ export const HowItWorks = () => {
         {features.map(({ icon, title, description }: FeatureProps) => (
           <Card
             key={title}
-            className="bg-muted/50"
+            className="bg-neutral-200 drop-shadow-xl shadow-black/10"
           >
             <CardHeader>
-              <CardTitle className="grid gap-4 place-items-center">
+              <CardTitle className="grid gap-4 place-items-center text-[#333333]">
                 {icon}
                 {title}
               </CardTitle>
             </CardHeader>
-            <CardContent>{description}</CardContent>
+            <CardContent className="text-[#333333]">{description}</CardContent>
           </Card>
         ))}
       </div>

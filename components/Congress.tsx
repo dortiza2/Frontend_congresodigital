@@ -67,13 +67,13 @@ export const Congress = () => {
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
+          <p className="text-xl md:text-2xl text-black leading-relaxed">
             El evento tecnológico más importante del año que reúne a los mejores expertos, 
             innovadores y emprendedores del ecosistema digital. Descubre las últimas tendencias, 
             conecta con líderes de la industria y forma parte del futuro de la tecnología.
           </p>
           
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-black">
             Únete a más de 1,000 profesionales en una experiencia única de aprendizaje, 
             networking y oportunidades de crecimiento profesional.
           </p>

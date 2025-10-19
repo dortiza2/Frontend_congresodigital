@@ -29,14 +29,14 @@ export const Activities = ({ activities }: ActivitiesProps) => {
           Actividades y talleres
         </h2>
 
-        <p className="text-muted-foreground text-center max-w-3xl mx-auto mt-4">
+        <p className="text-black text-center max-w-3xl mx-auto mt-4">
           Participa en nuestros talleres especializados y actividades interactivas diseñadas para potenciar tu aprendizaje
         </p>
 
         {/* Grid responsive con centrado mejorado para pocas tarjetas */}
         <div className="mt-10 flex flex-wrap justify-center gap-8 mx-auto max-w-6xl">
           {activities.map((activity: PublicActivity) => (
-            <Card key={activity.id} className="flex h-full flex-col bg-neutral-100 shadow-sm hover:shadow-md transition-shadow border border-neutral-300 w-full max-w-sm sm:w-80">
+            <Card key={activity.id} className="flex h-full flex-col bg-white/40 backdrop-blur-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] hover:shadow-lg transition-shadow border border-black/10 w-full max-w-sm sm:w-80 text-slate-900/90">
             <CardHeader className="p-0">
               {/* Imagen de la actividad */}
               <div className="relative w-full h-48 overflow-hidden rounded-t-lg bg-gradient-to-br from-blue-100 to-indigo-200">
@@ -78,7 +78,7 @@ export const Activities = ({ activities }: ActivitiesProps) => {
         </div>
 
         {activities.length === 0 && (
-          <div className="text-center text-muted-foreground">
+          <div className="text-center text-black">
             No hay actividades disponibles en este momento.
           </div>
         )}

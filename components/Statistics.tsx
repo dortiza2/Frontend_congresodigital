@@ -32,7 +32,7 @@ export const Statistics = () => {
             className="space-y-2 text-center"
           >
             <h2 className="text-3xl sm:text-4xl font-bold ">{quantity}</h2>
-            <p className="text-xl text-muted-foreground">{description}</p>
+            <p className="text-xl text-black">{description}</p>
           </div>
         ))}
       </div>

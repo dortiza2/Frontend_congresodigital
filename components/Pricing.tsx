@@ -86,7 +86,7 @@ export const Pricing = () => {
         </span>
         Access
       </h2>
-      <h3 className="text-xl text-center text-muted-foreground pt-4 pb-8">
+      <h3 className="text-xl text-center text-black pt-4 pb-8">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias
         reiciendis.
       </h3>
@@ -94,11 +94,11 @@ export const Pricing = () => {
         {pricingList.map((pricing: PricingProps) => (
           <Card
             key={pricing.title}
-            className={
+            className={`bg-neutral-200 ${
               pricing.popular === PopularPlanType.YES
                 ? "drop-shadow-xl shadow-black/10"
                 : ""
-            }
+            }`}
           >
             <CardHeader>
               <CardTitle className="flex item-center justify-between">
@@ -114,10 +114,10 @@ export const Pricing = () => {
               </CardTitle>
               <div>
                 <span className="text-3xl font-bold">${pricing.price}</span>
-                <span className="text-muted-foreground"> /month</span>
+                <span className="text-[#333333]"> /month</span>
               </div>
 
-              <CardDescription>{pricing.description}</CardDescription>
+              <CardDescription className="text-[#333333]">{pricing.description}</CardDescription>
             </CardHeader>
 
             <CardContent>

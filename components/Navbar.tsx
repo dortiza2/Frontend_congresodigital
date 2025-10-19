@@ -119,7 +119,7 @@ function MobileNav() {
     <div className="lg:hidden">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="border-neutral-300 hover:bg-neutral-100">
+          <Button variant="outline" size="icon" className="border-white/30 text-white hover:bg-white/10">
             <Menu className="h-5 w-5" />
             <span className="sr-only">Abrir menú</span>
           </Button>
@@ -263,85 +263,85 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-[60] w-full border-b border-neutral-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex h-14 items-center justify-between gap-3">
-            {/* Logo */}
-            <Link
-              href="/"
-              className="flex min-w-0 items-center gap-2 font-semibold"
-            >
-              <Cpu className="h-5 w-5" />
-              <span className="truncate">Congreso Digital</span>
-            </Link>
+      <header className="fixed top-0 left-0 right-0 z-[60] w-full border-b border-transparent bg-[#4A148C] text-white">
+         <div className="mx-auto max-w-7xl px-4 sm:px-6">
+           <div className="flex h-14 items-center justify-between gap-3">
+             {/* Logo */}
+             <Link
+               href="/"
+               className="flex min-w-0 items-center gap-2 font-semibold text-white"
+             >
+               <Cpu className="h-5 w-5" />
+               <span className="truncate">Congreso Digital</span>
+             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-6 text-sm">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="hover:underline underline-offset-4"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
+             {/* Desktop Navigation */}
+             <nav className="hidden lg:flex items-center gap-6 text-sm text-white">
+               {navLinks.map((link) => (
+                 <Link
+                   key={link.href}
+                   href={link.href}
+                   className="hover:underline underline-offset-4"
+                 >
+                   {link.label}
+                 </Link>
+               ))}
+             </nav>
 
-            {/* CTAs and Mobile Menu */}
-            <div className="flex items-center gap-2">
-              {/* Desktop CTAs */}
-              <div className="hidden lg:flex items-center gap-3">
-                <Link
-                  href={CTA.podiumPath}
-                  className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50"
-                >
-                  Podio
-                </Link>
-                {user ? (
-                  <div className="flex items-center gap-3">
-                    <span>Hola, <b>{firstName}</b></span>
-                    {shouldShowAccount() && (
-                      <button
-                        onClick={handleAccount}
-                        className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50 cursor-pointer space-x-1"
-                      >
-                        <User className="h-4 w-4" />
-                        <span>Mi Cuenta</span>
-                      </button>
-                    )}
-                    {shouldShowDashboard() && (
-                      <button
-                        onClick={handleDashboard}
-                        className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50 cursor-pointer"
-                      >
-                        <span>{getDashboardText()}</span>
-                      </button>
-                    )}
-                    <button
-                      onClick={handleLogout}
-                      className="inline-flex items-center rounded-md bg-red-600 text-white px-3 py-1.5 text-sm hover:bg-red-700 cursor-pointer space-x-1"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      <span>Cerrar sesión</span>
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleInscripcionClick}
-                    className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50 cursor-pointer"
-                  >
-                    Login / Register
-                  </button>
-                )}
-              </div>
-              
-              {/* Mobile Menu */}
-              <MobileNav />
-            </div>
-          </div>
-        </div>
-      </header>
+             {/* CTAs and Mobile Menu */}
+             <div className="flex items-center gap-2">
+               {/* Desktop CTAs */}
+               <div className="hidden lg:flex items-center gap-3">
+                 <Link
+                   href={CTA.podiumPath}
+                  className="inline-flex items-center rounded-md border border-white/30 px-3 py-1.5 text-sm text-white hover:bg-white/10"
+                 >
+                   Podio
+                 </Link>
+                 {user ? (
+                   <div className="flex items-center gap-3">
+                    <span className="text-white">Hola, <b>{firstName}</b></span>
+                     {shouldShowAccount() && (
+                       <button
+                         onClick={handleAccount}
+                        className="inline-flex items-center rounded-md border border-white/30 px-3 py-1.5 text-sm text-white hover:bg-white/10 cursor-pointer space-x-1"
+                       >
+                         <User className="h-4 w-4" />
+                         <span>Mi Cuenta</span>
+                       </button>
+                     )}
+                     {shouldShowDashboard() && (
+                       <button
+                         onClick={handleDashboard}
+                        className="inline-flex items-center rounded-md border border-white/30 px-3 py-1.5 text-sm text-white hover:bg-white/10 cursor-pointer"
+                       >
+                         <span>{getDashboardText()}</span>
+                       </button>
+                     )}
+                     <button
+                       onClick={handleLogout}
+                       className="inline-flex items-center rounded-md bg-red-600 text-white px-3 py-1.5 text-sm hover:bg-red-700 cursor-pointer space-x-1"
+                     >
+                       <LogOut className="h-4 w-4" />
+                       <span>Cerrar sesión</span>
+                     </button>
+                   </div>
+                 ) : (
+                   <button
+                     onClick={handleInscripcionClick}
+                    className="inline-flex items-center rounded-md border border-white/30 px-3 py-1.5 text-sm text-white hover:bg-white/10 cursor-pointer"
+                   >
+                     Login / Register
+                   </button>
+                 )}
+               </div>
+               
+               {/* Mobile Menu */}
+               <MobileNav />
+             </div>
+           </div>
+         </div>
+       </header>
       {/* Spacer to prevent content from being hidden behind fixed navbar */}
       <div className="h-14" aria-hidden="true" />
     </>

@@ -135,7 +135,7 @@ export const Winners = () => {
       <h2 className="text-3xl md:text-4xl font-bold text-center">
         Ganadores Congreso {currentYear}
       </h2>
-      <h3 className="text-xl text-center text-muted-foreground pt-4 pb-8">
+      <h3 className="text-xl text-center text-black pt-4 pb-8">
         Conoce a los ganadores de las principales actividades del congreso
       </h3>
 
@@ -143,7 +143,7 @@ export const Winners = () => {
       {winnersByActivity.length > 0 ? (
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
           {winnersByActivity.map(({ activity, winners }) => (
-            <Card key={activity.id} className="overflow-hidden">
+            <Card key={activity.id} className="overflow-hidden rounded-2xl border border-black/10 bg-white/40 backdrop-blur-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] text-slate-900/90">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>{activity.title}</span>
@@ -161,9 +161,9 @@ export const Winners = () => {
                       <span className="font-semibold">{getPlaceText(w.place)}</span>
                     </div>
                     <div className="flex-1">
-                      <p className="text-slate-900 font-medium">{w.projectName}</p>
+                      <p className="font-medium">{w.projectName}</p>
                       {w.projectShort && (
-                        <p className="text-slate-600 text-sm">{w.projectShort}</p>
+                        <p className="text-sm">{w.projectShort}</p>
                       )}
                     </div>
                     <Image
@@ -277,7 +277,7 @@ export const Winners = () => {
       {/* Botón para ver histórico */}
       <div className="text-center mt-12">
         <Link href="/podio">
-          <Button variant="outline" size="lg" className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-300 hover:from-yellow-100 hover:to-orange-100 transition-all duration-300">
+          <Button variant="outline" size="lg" className="bg-gradient-to-r from-yellow-200 to-orange-200 border-yellow-400 hover:from-yellow-300 hover:to-orange-300 transition-all duration-300">
             <Trophy className="w-4 h-4 mr-2" />
             Histórico de ganadores
           </Button>

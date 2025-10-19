@@ -235,12 +235,12 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
       {/* Timeline de eventos */}
       <div className="max-w-4xl mx-auto space-y-4">
         {filteredAgenda.length === 0 ? (
-          <div className="text-center text-muted-foreground" aria-live="polite">
+          <div className="text-center text-black" aria-live="polite">
             No hay actividades para el año seleccionado. Próximamente publicaremos la agenda.
           </div>
         ) : (
           filteredAgenda.map((item, index) => (
-            <Card key={item.id} className="relative">
+            <Card key={item.id} className="relative rounded-2xl border border-black/10 bg-white/40 backdrop-blur-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] text-slate-900/90">
               {/* Línea de timeline */}
               {index < filteredAgenda.length - 1 && (
                 <div className="absolute left-6 top-16 w-0.5 h-8 bg-border" />
@@ -257,7 +257,7 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
                       {getStatusBadge(item.status)}
                     </div>
                     
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                    <div className="flex items-center gap-4 text-sm text-slate-700/90 flex-wrap">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
                         <span>
@@ -301,10 +301,10 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
                     </Avatar>
                     <div>
                       <p className="font-medium">
-                        <span className="text-muted-foreground mr-1">Ponente:</span>
+                        <span className="text-slate-700/90 mr-1">Ponente:</span>
                         {item.speaker.name}
                       </p>
-                      <p className="text-sm text-muted-foreground">{item.speaker.roleTitle || item.speaker.company || ''}</p>
+                      <p className="text-sm text-slate-700/90">{item.speaker.roleTitle || item.speaker.company || ''}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -315,7 +315,7 @@ export const Agenda = ({ initialActivities = [], initialSpeakers = [] }: { initi
       </div>
       
       {/* Nota sobre el cálculo de estado */}
-      <div className="text-center text-xs text-muted-foreground mt-8">
+      <div className="text-center text-xs text-black mt-8">
         * El estado de los eventos se calcula en tiempo real usando la hora local del usuario
       </div>
     </section>

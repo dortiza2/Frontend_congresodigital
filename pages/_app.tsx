@@ -20,7 +20,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
     <div className={inter.variable}>
       <EnvironmentValidator>
         <SessionProvider session={session}>
-          <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+          <ThemeProvider defaultTheme="light" storageKey="ui-theme">
             <AuthProvider>
               <ToastProvider>
                 <RouteGuard>

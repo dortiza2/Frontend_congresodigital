@@ -60,7 +60,7 @@ export const UMGSection = () => {
             </span>
           </h2>
           
-          <div className="text-lg text-muted-foreground leading-relaxed">
+          <div className="text-lg text-black leading-relaxed">
             <p>
               La <strong>Universidad Mariano Gálvez de Guatemala</strong> honra al Dr. José Mariano Gálvez, reformador de la educación guatemalteca. Forma profesionales con excelencia <strong>ética, científica y técnica</strong>, integrando <strong>docencia, investigación y servicio</strong>. Ofrece <strong>Pregrado</strong> y <strong>Posgrado</strong> (Maestrías y Doctorados), además de Escuela de Idiomas y facultades como <strong>Administración de Empresas, Comunicación, Económicas, Jurídicas y Sociales, Ingeniería, Humanidades, Medicina, Psicología y Teología</strong>, entre otras.
             </p>

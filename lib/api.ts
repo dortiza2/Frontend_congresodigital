@@ -298,7 +298,7 @@ export async function getActivities(kinds?: string): Promise<ApiStandardResponse
       published: true,
       isActive: true,
       requiresEnrollment: true,
-      speaker: { id: 'sp-01', name: 'Invitado Especial', roleTitle: 'Frontend Lead', company: 'Tech Co', avatarUrl: '/avatars/default.svg' }
+      speaker: { id: 'sp-01', name: 'Sofía Álvarez', roleTitle: 'Frontend Lead', company: 'Tech Co', avatarUrl: '/avatars/default.svg' }
     },
     {
       id: 'ch-ia',
@@ -313,7 +313,7 @@ export async function getActivities(kinds?: string): Promise<ApiStandardResponse
       published: true,
       isActive: true,
       requiresEnrollment: false,
-      speaker: { id: 'sp-02', name: 'Ponente Invitado', roleTitle: 'AI Engineer', company: 'Data Labs', avatarUrl: '/avatars/default.svg' }
+      speaker: { id: 'sp-02', name: 'Diego Herrera', roleTitle: 'AI Engineer', company: 'Data Labs', avatarUrl: '/avatars/default.svg' }
     },
     {
       id: 'cp-robots',
@@ -345,9 +345,9 @@ export async function getSpeakers(): Promise<ApiStandardResponse<PublicSpeakerDT
 
   // Fallback visible si la API remota devuelve vacío
   const fallbackSpeakers: PublicSpeakerDTO[] = [
-    { id: 'sp-01', name: 'Invitado Especial', roleTitle: 'Frontend Lead', company: 'Tech Co', avatarUrl: '/avatars/default.svg', bio: 'Experto en interfaces modernas y rendimiento web.' },
-    { id: 'sp-02', name: 'Ponente Invitado', roleTitle: 'AI Engineer', company: 'Data Labs', avatarUrl: '/avatars/default.svg', bio: 'Ingeniero de IA con proyectos en producción.' },
-    { id: 'sp-03', name: 'Mentor Senior', roleTitle: 'Cloud Architect', company: 'Cloudify', avatarUrl: '/avatars/default.svg', bio: 'Arquitecto cloud y DevOps.' }
+    { id: 'sp-01', name: 'Sofía Álvarez', roleTitle: 'Frontend Lead', company: 'Tech Co', avatarUrl: '/avatars/default.svg', bio: 'Experto en interfaces modernas y rendimiento web.' },
+    { id: 'sp-02', name: 'Diego Herrera', roleTitle: 'AI Engineer', company: 'Data Labs', avatarUrl: '/avatars/default.svg', bio: 'Ingeniero de IA con proyectos en producción.' },
+    { id: 'sp-03', name: 'Mariana López', roleTitle: 'Cloud Architect', company: 'Cloudify', avatarUrl: '/avatars/default.svg', bio: 'Arquitecto cloud y DevOps.' }
   ];
 
   return {

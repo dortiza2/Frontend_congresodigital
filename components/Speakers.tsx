@@ -79,14 +79,14 @@ export const Speakers = ({ speakers }: SpeakerProps) => {
           </span>
         </h2>
 
-        <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
+        <p className="mt-4 text-xl text-black max-w-2xl mx-auto">
           Conoce a los expertos líderes de la industria que compartirán sus conocimientos 
           y experiencias en las últimas tendencias tecnológicas.
         </p>
       </div>
 
       {speakersList.length === 0 && (
-        <div className="text-center text-muted-foreground mb-8" aria-live="polite">
+        <div className="text-center text-black mb-8" aria-live="polite">
           Estamos preparando la lista de expositores invitados. Vuelve más tarde.
         </div>
       )}
@@ -104,10 +104,10 @@ export const Speakers = ({ speakers }: SpeakerProps) => {
           return (
             <Card
               key={speaker.id}
-              className="bg-neutral-100 relative mt-8 flex flex-col justify-center items-center h-full border-0 shadow-lg"
+              className="relative mt-8 flex flex-col justify-center items-center h-full border border-black/10 bg-white/40 backdrop-blur-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] text-slate-900/90"
             >
               <CardHeader className="mt-8 flex justify-center items-center pb-2">
-                <div className="absolute -top-12 rounded-full w-24 h-24 aspect-square overflow-hidden border-4 border-neutral-200 shadow-lg">
+                <div className="absolute -top-12 rounded-full w-24 h-24 aspect-square overflow-hidden border-4 border-white/60 shadow-lg">
                   <Image
                     src={speaker.photoUrl}
                     alt={`${speaker.name} - ${speaker.headline}`}
@@ -123,13 +123,13 @@ export const Speakers = ({ speakers }: SpeakerProps) => {
                 />
                 </div>
                 <CardTitle className="text-center mt-4 text-lg">{speaker.name}</CardTitle>
-                <CardDescription className="text-primary text-center font-medium">
+                <CardDescription className="text-center font-medium">
                   {speaker.headline}
                 </CardDescription>
               </CardHeader>
 
               <CardContent className="text-center pb-4 flex-grow px-6">
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-sm leading-relaxed">
                   {speaker.bio.length > 220 ? `${speaker.bio.substring(0, 220)}...` : speaker.bio}
                 </p>
               </CardContent>

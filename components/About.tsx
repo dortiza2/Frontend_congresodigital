@@ -22,7 +22,7 @@ export const About = () => {
                 </span>
                 Company
               </h2>
-              <p className="text-xl text-muted-foreground mt-4">
+              <p className="text-xl text-black mt-4">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                 eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
                 enim ad minim veniam, quis nostrud exercitation ullamco laboris

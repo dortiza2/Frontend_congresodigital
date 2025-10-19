@@ -124,7 +124,7 @@ export const Newsletter = () => {
               <h3 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight max-w-3xl whitespace-normal">
                 Ingeniería en Sistemas
               </h3>
-              <p className="text-xl text-muted-foreground leading-relaxed">
+              <p className="text-xl text-black leading-relaxed">
                 La <strong>Ingeniería en Sistemas</strong> integra principios de la informática con la gestión de <strong>sistemas de información</strong> para diseñar, desarrollar y administrar soluciones que resuelven problemas reales, especialmente en el ámbito empresarial. La carrera abarca <strong>Ciencias de la Computación</strong>, <strong>Ingeniería de Software</strong>, <strong>Gestión de Sistemas de Información</strong>, <strong>Infraestructura IT</strong> y <strong>Gestión Estratégica</strong>. El egresado destaca por su <strong>solución de problemas</strong>, <strong>desarrollo de software</strong>, <strong>administración de sistemas</strong>, <strong>gestión de proyectos</strong>, <strong>análisis de datos</strong> e <strong>innovación</strong>, con proyección laboral en empresas de <strong>tecnología</strong> y de <strong>desarrollo de software</strong>.
               </p>
               
@@ -135,7 +135,7 @@ export const Newsletter = () => {
                   </div>
                   <div>
                     <p className="font-semibold">5 años</p>
-                    <p className="text-sm text-muted-foreground">Duración</p>
+                    <p className="text-sm text-black">Duración</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -144,7 +144,7 @@ export const Newsletter = () => {
                   </div>
                   <div>
                     <p className="font-semibold">95%</p>
-                    <p className="text-sm text-muted-foreground">Empleabilidad</p>
+                    <p className="text-sm text-black">Empleabilidad</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -153,7 +153,7 @@ export const Newsletter = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Top 3</p>
-                    <p className="text-sm text-muted-foreground">Ranking Nacional</p>
+                    <p className="text-sm text-black">Ranking Nacional</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -162,7 +162,7 @@ export const Newsletter = () => {
                   </div>
                   <div>
                     <p className="font-semibold">50+</p>
-                    <p className="text-sm text-muted-foreground">Materias</p>
+                    <p className="text-sm text-black">Materias</p>
                   </div>
                 </div>
               </div>
@@ -182,9 +182,9 @@ export const Newsletter = () => {
 
           {/* CTA - Obtener más información */}
           <div className="mt-12">
-            <Card className="p-6 max-w-2xl mx-auto">
+            <Card className="bg-neutral-200 p-6 max-w-2xl mx-auto">
               <CardContent className="p-0">
-                <h4 className="text-lg font-semibold mb-4">
+                <h4 className="text-lg font-semibold mb-4 text-black">
                   Obtener más información de la carrera
                 </h4>
                 {isSubmitted ? (
@@ -200,30 +200,26 @@ export const Newsletter = () => {
                   >
                     <Input
                       type="email"
-                      placeholder="tu.email@ejemplo.com"
+                      placeholder="Tu correo electrónico"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="flex-1"
-                      required
-                      aria-label="email"
                     />
-                    <Button type="submit" className="sm:w-auto">
-                      Obtener información
+                    <Button type="submit" className="rounded-lg">
+                      Enviar
                     </Button>
                   </form>
                 )}
               </CardContent>
             </Card>
-          </div>
 
-          {/* Grid de tarjetas/enlaces */}
-          <div className="mt-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
-              <Card className="hover:shadow-lg transition-shadow">
+            {/* Recursos adicionales */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+              <Card className="bg-neutral-200 hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 mb-3">
                     <ExternalLink className="h-5 w-5 text-primary" />
-                    <h5 className="font-semibold">Sitio Oficial UMG</h5>
+                    <h5 className="font-semibold text-black">Página Oficial</h5>
                   </div>
                   <Button 
                     variant="outline" 
@@ -243,35 +239,11 @@ export const Newsletter = () => {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card className="bg-neutral-200 hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 mb-3">
                     <ExternalLink className="h-5 w-5 text-primary" />
-                    <h5 className="font-semibold">Facultad de Ingeniería</h5>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
-                    asChild
-                  >
-                    <a 
-                      href="https://www.umg.edu.gt/facultades/ingenieria" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2"
-                    >
-                      Visitar
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <ExternalLink className="h-5 w-5 text-primary" />
-                    <h5 className="font-semibold">Plan de Estudios</h5>
+                    <h5 className="font-semibold text-black">Plan de Estudios</h5>
                   </div>
                   <Button 
                     variant="outline" 
@@ -291,11 +263,11 @@ export const Newsletter = () => {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card className="bg-neutral-200 hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 mb-3">
                     <ExternalLink className="h-5 w-5 text-primary" />
-                    <h5 className="font-semibold">Proceso de Admisión</h5>
+                    <h5 className="font-semibold text-black">Admisiones</h5>
                   </div>
                   <Button 
                     variant="outline" 
@@ -303,7 +275,7 @@ export const Newsletter = () => {
                     asChild
                   >
                     <a 
-                      href="https://www.umg.edu.gt/admisiones" 
+                      href="https://admision.umg.edu.gt" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-2"
@@ -318,8 +290,6 @@ export const Newsletter = () => {
           </div>
         </div>
       </div>
-
-      <hr className="w-11/12 mx-auto" />
     </section>
   );
 };

@@ -81,7 +81,7 @@ export const CongressIntro = () => {
           </h1>
         </main>
 
-        <p className="text-xl text-muted-foreground md:w-10/12 mx-auto lg:mx-0">
+        <p className="text-xl text-black md:w-10/12 mx-auto lg:mx-0">
           {truncatedSummary}
         </p>
 
@@ -122,7 +122,7 @@ export const CongressIntro = () => {
           {/* Grid responsivo: desktop ~1/3, mobile apila */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
             {speakers.slice(0, 6).map((speaker) => (
-              <Card key={speaker.id} className="hover:shadow-lg transition-shadow">
+              <Card key={speaker.id} className="bg-neutral-200 hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
                   <Avatar className="h-12 w-12">
                     <AvatarImage
@@ -139,17 +139,17 @@ export const CongressIntro = () => {
                   </Avatar>
                   
                   <div className="flex flex-col flex-1 min-w-0">
-                    <CardTitle className="text-sm font-semibold truncate">
+                    <CardTitle className="text-sm font-semibold truncate text-[#333333]">
                       {speaker.name}
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-[#333333] line-clamp-2">
                       {speaker.topic}
                     </CardDescription>
                   </div>
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  <p className="text-xs text-muted-foreground line-clamp-2">
+                  <p className="text-xs text-[#333333] line-clamp-2">
                     {speaker.bioShort}
                   </p>
                 </CardContent>

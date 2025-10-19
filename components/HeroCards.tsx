@@ -45,7 +45,7 @@ export const HeroCards = () => {
             className="absolute grayscale-[0%] -top-12 rounded-full w-24 h-24 aspect-square object-cover"
           />
           <CardTitle className="text-center">Leo Miranda</CardTitle>
-          <CardDescription className="font-normal text-primary">
+          <CardDescription className="font-normal text-[#333333]">
             Frontend Developer
           </CardDescription>
         </CardHeader>
@@ -109,7 +109,7 @@ export const HeroCards = () => {
       </Card>
 
       {/* Pricing */}
-      <Card className="absolute top-[150px] left-[50px] w-72  drop-shadow-xl shadow-black/10">
+      <Card className="absolute top-[150px] left-[50px] w-72  drop-shadow-xl shadow-black/10 bg-neutral-200">
         <CardHeader>
           <CardTitle className="flex item-center justify-between">
             Free
@@ -122,7 +122,7 @@ export const HeroCards = () => {
           </CardTitle>
           <div>
             <span className="text-3xl font-bold">$0</span>
-            <span className="text-muted-foreground"> /month</span>
+            <span className="text-[#333333]"> /month</span>
           </div>
 
           <CardDescription>
@@ -154,14 +154,14 @@ export const HeroCards = () => {
       </Card>
 
       {/* Service */}
-      <Card className="absolute w-[350px] -right-[10px] bottom-[35px]  drop-shadow-xl shadow-black/10">
+      <Card className="absolute w-[350px] -right-[10px] bottom-[35px]  drop-shadow-xl shadow-black/10 bg-neutral-200">
         <CardHeader className="space-y-1 flex md:flex-row justify-start items-start gap-4">
           <div className="mt-1 bg-primary/20 p-1 rounded-2xl">
             <LightBulbIcon />
           </div>
           <div>
             <CardTitle>Light & dark mode</CardTitle>
-            <CardDescription className="text-md mt-2">
+            <CardDescription className="text-md mt-2 text-[#333333]">
               Lorem ipsum dolor sit amet consect adipisicing elit. Consectetur
               natusm.
             </CardDescription>
